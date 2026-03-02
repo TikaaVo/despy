@@ -10,15 +10,6 @@ import numpy as np
 class OLA(KNNBase):
     """
     OLA: Overall Local Accuracy.
-
-    Assigns full weight to the single model with the highest average score
-    across the K nearest validation neighbors. Hard selection — no blending.
-
-    Useful as a baseline and for understanding whether your model pool has
-    enough local diversity to benefit from soft blending. When OLA and KNN-DWS
-    produce similar results, the models don't have meaningfully distinct
-    regional strengths.
-
     Parameters
     ----------
     task : str
@@ -31,14 +22,6 @@ class OLA(KNNBase):
         Neighborhood size. Default: 10.
     preset : str
         Neighbor search preset. Default: 'balanced'. See list_presets().
-
-    Examples
-    --------
-        from ensemble_weights.des.ola import OLA
-
-        router = OLA(task='regression', metric='mae', mode='min', k=20)
-        router.fit(X_val, y_val, {'model_a': preds_a, 'model_b': preds_b})
-        weights = router.predict(X_test)
     """
 
     def __init__(self, task, metric='mae', mode='min', k=10,
@@ -63,8 +46,7 @@ class OLA(KNNBase):
             features, y, preds_dict, self._metric_name
         )
         super().fit(features, y, preds_dict)
-        # Global normalization to [0, 1]. Argmax is invariant to this, but it
-        # keeps the matrix scale consistent with other algorithms for inspection.
+        # Global normalization to [0, 1]
         mat_min, mat_max = self.matrix.min(), self.matrix.max()
         if mat_max > mat_min:
             self.matrix = (self.matrix - mat_min) / (mat_max - mat_min)

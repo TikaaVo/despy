@@ -4,19 +4,6 @@ DES suitability analysis.
 Analyses a validation set and model pool to estimate whether Dynamic Ensemble
 Selection is likely to help, and by how much.
 
-Usage
------
-    from ensemble_weights.analysis import analyze
-
-    report = analyze(
-        features   = X_val,
-        y          = y_val,
-        preds_dict = {'lr': lr_preds, 'knn': knn_preds, 'hgb': hgb_preds},
-        metric     = 'mae',
-        mode       = 'min',
-        k          = 20,
-    )
-
 The function prints a formatted report and returns a dict of raw metrics for
 programmatic use.
 """
@@ -25,10 +12,7 @@ from ensemble_weights._config    import resolve_metric, prep_fit_inputs
 from ensemble_weights.base.knnbase import KNNBase
 from ensemble_weights.neighbors  import KNNNeighborFinder
 
-
-# ---------------------------------------------------------------------------
 # Internal helpers
-# ---------------------------------------------------------------------------
 
 class _AnalysisFitter(KNNBase):
     """Minimal KNNBase subclass used only to build the score matrix."""
@@ -52,9 +36,7 @@ def _bar(value, width=30, fill='█', empty='░'):
     return fill * n + empty * (width - n)
 
 
-# ---------------------------------------------------------------------------
 # Public API
-# ---------------------------------------------------------------------------
 
 def analyze(features, y, preds_dict, metric, mode, k=20, verbose=True):
     """
@@ -119,118 +101,73 @@ def analyze(features, y, preds_dict, metric, mode, k=20, verbose=True):
     n_models          = len(preds_dict)
     model_names       = list(preds_dict.keys())
 
-    # ── Build score matrix (higher = better, always) ─────────────────────────
-    # Use k+1 so we can drop each sample's self-match when querying the val set.
+    # Build score matrix
     finder = KNNNeighborFinder(k=k + 1)
     fitter = _AnalysisFitter(metric=metric_fn, mode=mode, neighbor_finder=finder)
     fitter.fit(features, y, preds_dict)
 
-    # matrix: (n_val, n_models), higher is always better
     matrix = fitter.matrix
 
-    # ── Per-model global mean scores ──────────────────────────────────────────
+    # Per-model global mean scores
     model_scores = {name: float(matrix[:, j].mean())
                     for j, name in enumerate(model_names)}
     best_model   = max(model_scores, key=model_scores.get)
     best_score   = model_scores[best_model]
 
-    # ── Oracle gain ───────────────────────────────────────────────────────────
-    # For each validation sample, what score would a perfect oracle achieve
-    # by always picking the locally best model?
-    # oracle_score[i] = max score across models for sample i
+    # Oracle gain
     oracle_scores  = matrix.max(axis=1)           # (n_val,)
     oracle_mean    = oracle_scores.mean()
 
     # Gain is relative to the best single model's mean score.
-    # Guard against best_score == 0 (all models score zero — degenerate case).
     if abs(best_score) > 1e-12:
         oracle_gain = float((oracle_mean - best_score) / abs(best_score))
     else:
         oracle_gain = 0.0
 
-    # Empirically, DES captures roughly 3–5% of oracle headroom across four
-    # datasets (50 seeds each). We use 5% as the upper end of the observed range.
-    # The 30% figure sometimes cited in DES literature refers to accuracy-level
-    # improvement on toy benchmarks, not real-world percentage-point gains.
+    # Empirically, DES captures roughly 3–5% of oracle headroom.
     estimated_gain = oracle_gain * 0.02
 
-    # ── Regional diversity ────────────────────────────────────────────────────
-    # Query the val set against itself (k+1 neighbours, drop the first which
-    # is the sample itself at distance 0).
+    # Regional diversity
     _, indices = fitter.model.kneighbors(features, k=k + 1)
     indices    = indices[:, 1:]                   # (n_val, k) — drop self
 
-    # For each val sample as a query, which model has the highest avg score
-    # in its K-neighbourhood?
     neighborhood_scores = matrix[indices].mean(axis=1)   # (n_val, n_models)
     local_winners       = np.argmax(neighborhood_scores, axis=1)  # (n_val,)
 
-    # Win share: fraction of neighbourhoods each model wins
+    # Win share
     win_counts  = np.bincount(local_winners, minlength=n_models)
     win_shares  = win_counts / n_val
     model_wins  = {name: float(win_shares[j]) for j, name in enumerate(model_names)}
 
-    # Regional diversity = entropy of win shares, normalised to [0, 1]
+    # Regional diversity
     regional_diversity = float(_entropy(win_shares))
 
-    # ── Local uplift ──────────────────────────────────────────────────────────
-    # For each neighbourhood, compare the locally-selected model's average score
-    # to the global best model's average score in that same neighbourhood.
-    # This is what DES actually exploits at predict time.
-    #
-    # Unlike oracle_gain (a per-sample theoretical ceiling), local_uplift
-    # measures the neighbourhood-level routing advantage — the signal that
-    # needs to generalise to test data. A dataset where a globally-weak model
-    # "wins" many neighbourhoods by tiny margins shows low local_uplift even if
-    # oracle_gain and diversity look high on paper (see: Phoneme dataset).
+    # Local uplift
     global_best_idx  = model_names.index(best_model)
     nbhd_best        = neighborhood_scores.max(axis=1)          # (n_val,)
     nbhd_global_best = neighborhood_scores[:, global_best_idx]  # (n_val,)
-    nbhd_improvement = nbhd_best - nbhd_global_best             # always >= 0
+    nbhd_improvement = nbhd_best - nbhd_global_best
 
     denom = abs(nbhd_global_best.mean())
     local_uplift = float(nbhd_improvement.mean() / denom) if denom > 1e-12 else 0.0
 
-    # ── Model disagreement (scalar predictions only) ──────────────────────────
-    # Not meaningful for probability inputs (all models always produce a proba).
+    # Model disagreement
     first_preds = next(iter(preds_dict.values()))
     if np.asarray(first_preds).ndim == 1:
-        # Pairwise disagreement: how often do two random samples have different
-        # local winners? Equivalent to 1 - sum(p_i^2) (Gini impurity).
+        # Pairwise disagreement
         disagreement = float(1.0 - np.sum(win_shares ** 2))
     else:
         disagreement = None
 
-    # ── Validation set quality ────────────────────────────────────────────────
-    # Rule of thumb: n_val / k >= 100 gives stable neighbourhood estimates.
-    # Below 80 the estimates may be noisy; below 20 the analysis is unreliable.
+    # Validation set quality
+    # n_val / k >= 100 = stable neighbourhood estimates.
     val_quality = float(min(1.0, (n_val / k) / 100.0))
 
-    # ── KNN learnability ─────────────────────────────────────────────────────
-    # KNN needs both enough samples and enough features to learn stable
-    # competence regions. With few features the distance structure is weak
-    # and nearest neighbours are not meaningfully "similar" samples.
-    #
-    # feature_score: linear ramp from 0 at 2 features to 1.0 at 12+.
-    # Calibrated against showcase: 5 features (Phoneme) → 0.30, which
-    # combined with val_quality=0.54 gives learnability=0.16 → MAYBE.
-    # 8 features (Housing, Bike) → 0.60; 16 features (Letter) → 1.0.
+    # KNN learnability
     feature_score  = float(np.clip((n_features - 2) / 10.0, 0.0, 1.0))
     knn_learnability = val_quality * feature_score
 
-    # ── Recommendation ────────────────────────────────────────────────────────
-    # Decision tree, tightest guards first:
-    #
-    #   knn_learnability < 0.25  →  MAYBE  (KNN can't learn the regions)
-    #   local_uplift < 0.01 and diversity < 0.4  →  SKIP  (nothing to route)
-    #   any weak signal  →  MAYBE
-    #   all strong  →  USE DES
-    #
-    # Calibrated against showcase results (50 seeds):
-    #   California   (learnability 0.60, uplift strong, diversity 0.58) → USE DES
-    #   Bike Sharing (learnability 0.60, uplift weak,   diversity 0.14) → MAYBE
-    #   Letter Rec.  (learnability 1.00, uplift strong, diversity 0.62) → USE DES
-    #   Phoneme      (learnability 0.16, val_quality 0.54, 5 features)  → MAYBE
+    # Recommendation
 
     if val_quality < 0.2:
         recommendation = 'UNRELIABLE'
@@ -273,10 +210,7 @@ def analyze(features, y, preds_dict, metric, mode, k=20, verbose=True):
             f"model and the global ensemble."
         )
 
-    # ── Assemble result dict ──────────────────────────────────────────────────
-    # global_best_win_share: fraction of neighbourhoods won by the globally
-    # best model. Low value (<0.5) while another model dominates locally is a
-    # noise signal — the val set is too sparse to reliably separate regions.
+    # Assemble results
     global_best_win_share = float(model_wins[best_model])
 
     result = {
@@ -305,10 +239,7 @@ def analyze(features, y, preds_dict, metric, mode, k=20, verbose=True):
 
     return result
 
-
-# ---------------------------------------------------------------------------
 # Report formatting
-# ---------------------------------------------------------------------------
 
 def _print_report(r):
     W = 72
@@ -323,7 +254,7 @@ def _print_report(r):
     print(f"  {r['n_val']:,} val samples  ·  {r['n_features']} features  ·  "
           f"{r['n_models']} models  ·  k = {r['k']}")
 
-    # ── Model scores ──────────────────────────────────────────────────────
+    # Model scores
     _section("Model scores  (higher-is-better scale)")
     scores  = list(r['model_scores'].values())
     s_min   = min(scores)
@@ -332,18 +263,17 @@ def _print_report(r):
     for name, score in r['model_scores'].items():
         marker   = '  ← best' if name == r['best_model'] else ''
         # Bar shows each model's relative position in the pool score range.
-        # Best model = full bar; worst model = empty bar.
         bar_val  = (score - s_min) / s_range if s_range > 0 else 1.0
         bar      = _bar(bar_val)
         print(f"    {name:<22}  {score:+.4f}  {bar}{marker}")
 
-    # ── Oracle gain ───────────────────────────────────────────────────────
+    # Oracle gain
     _section("Oracle / local uplift  (headroom and realisable gain)")
     og = r['oracle_gain']
     lu = r['local_uplift']
     eg = r['estimated_gain']
-    bar_og = _bar(min(og / 0.20, 1.0))   # scale: 20% oracle gain = full bar
-    bar_lu = _bar(min(lu / 0.10, 1.0))   # scale: 10% local uplift = full bar
+    bar_og = _bar(min(og / 0.20, 1.0))
+    bar_lu = _bar(min(lu / 0.10, 1.0))
     print(f"    Oracle gain      {og*100:+6.2f}%  {bar_og}")
     print(f"    Local uplift     {lu*100:+6.2f}%  {bar_lu}")
     print(f"    Estimated DES    {eg*100:+6.2f}%  (≤2% of oracle; empirical range 1–5%)")
@@ -361,7 +291,7 @@ def _print_report(r):
     print(f"    test data. Low local uplift with high oracle gain usually means")
     print(f"    the routing signal is noisy (val set too small or too few features).")
 
-    # ── Regional diversity ────────────────────────────────────────────────
+    # Regional diversity
     _section("Regional diversity  (do different models win in different areas?)")
     rd  = r['regional_diversity']
     bar_rd = _bar(rd)
@@ -382,8 +312,6 @@ def _print_report(r):
         note = "High diversity — models have distinct regional strengths."
     print(f"    {note}")
     # Warn when the local neighbourhood winner differs from the global best.
-    # A weaker model appearing regionally dominant usually means the val set
-    # is too small or too low-dimensional to reliably map performance regions.
     gbws         = r['global_best_win_share']
     local_leader = max(r['model_win_shares'], key=r['model_win_shares'].get)
     if local_leader != r['best_model']:
@@ -394,7 +322,7 @@ def _print_report(r):
         print(f"       A weaker model dominating locally often signals noisy")
         print(f"       neighbourhood estimates. Cross-check local uplift.")
 
-    # ── Disagreement (scalar only) ────────────────────────────────────────
+    # Disagreement
     if r['disagreement'] is not None:
         _section("Model disagreement  (how often does the locally-best model vary?)")
         d      = r['disagreement']
@@ -409,7 +337,7 @@ def _print_report(r):
             note = "High disagreement — strong routing signal available."
         print(f"    {note}")
 
-    # ── Validation set quality & KNN learnability ─────────────────────────
+    # Validation set quality & KNN learnability
     _section("KNN learnability  (can the router learn stable competence regions?)")
     vq      = r['val_quality']
     fs      = r['feature_score']
@@ -434,7 +362,7 @@ def _print_report(r):
         note = "Good — KNN has enough data and feature structure to route reliably."
     print(f"    {note}")
 
-    # ── Recommendation ────────────────────────────────────────────────────
+    # Recommendation
     print(f"\n  {'━' * W}")
     rec = r['recommendation']
     symbols = {

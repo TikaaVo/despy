@@ -4,15 +4,7 @@ import numpy as np
 
 class KNNBase(BaseRouter):
     """
-    Shared base for KNN-based DES algorithms.
-
-    Handles score matrix construction and neighbor index fitting.
-    Subclasses implement predict() with their own selection or weighting logic.
-
-    The difference between DES algorithms (KNORA-E, KNORA-U, OLA, KNN-DWS, etc.)
-    is purely in how they use the score matrix at predict time. The core loop —
-    compute per-sample scores, store in matrix, fit neighbor index — is always
-    the same and lives here.
+    Base for KNN-based DES algorithms.
     """
 
     def __init__(self, metric, mode='max', neighbor_finder=None):
@@ -37,8 +29,7 @@ class KNNBase(BaseRouter):
         Return a 1D array of per-sample metric scores.
 
         preds may be 1D (scalar predictions) or 2D (probability arrays, one
-        row per sample). np.vectorize cannot handle the 2D case correctly —
-        it iterates element-wise rather than row-wise — so we dispatch on shape.
+        row per sample)
         """
         preds = np.asarray(preds)
         if preds.ndim == 2:
@@ -49,11 +40,7 @@ class KNNBase(BaseRouter):
         """
         Build the score matrix and fit the neighbor index.
 
-        Scores are negated for minimization metrics so the matrix is always
-        higher-is-better, regardless of the underlying metric direction.
-
-        This method expects pre-validated numpy arrays. Call prep_fit_inputs()
-        before calling this in any subclass fit().
+        This method expects pre-validated numpy arrays.
         """
         self.models = list(preds_dict.keys())
         n_val       = len(y)

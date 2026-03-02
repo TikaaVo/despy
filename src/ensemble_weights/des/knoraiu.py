@@ -11,21 +11,6 @@ class KNORAIU(KNNBase):
     """
     KNORA-IU: K-Nearest Oracles — Inverse-weighted Union.
 
-    A distance-aware variant of KNORA-U. Each competent neighbor casts a vote
-    weighted by the inverse of its distance to the test point rather than a
-    uniform 1. Closer neighbors therefore have more influence on which models
-    are selected.
-
-    In KNORA-U a neighbor 2 units away and one 20 units away contribute equally
-    if both are above the competence threshold. KNORA-IU down-weights the
-    distant neighbor by a factor of 10, concentrating decisions on the most
-    relevant part of the validation set.
-
-    This tends to help in datasets with strong local structure and hurts when
-    neighborhoods are dense and homogeneous (where distance differences carry
-    little meaning). In practice it is a modest refinement over KNORA-U rather
-    than a large improvement.
-
     Parameters
     ----------
     task : str
@@ -43,14 +28,6 @@ class KNORAIU(KNNBase):
         Regression: use 1.0.
     preset : str
         Neighbor search preset. Default: 'balanced'. See list_presets().
-
-    Examples
-    --------
-        from ensemble_weights.des.knora_iu import KNORAIU
-
-        router = KNORAIU(task='classification', metric='log_loss', mode='min', k=20)
-        router.fit(X_val, y_val, probas_dict)
-        weights = router.predict(X_test)
     """
 
     def __init__(self, task, metric='mae', mode='min', k=10,
@@ -104,9 +81,7 @@ class KNORAIU(KNNBase):
         distances, indices = self.model.kneighbors(x)   # both (batch, k)
         neighbor_scores    = self.matrix[indices]        # (batch, k, n_models)
 
-        # Normalize per neighbor: best model = 1.0, worst = 0.0.
-        # When all models score equally (range = 0), every model gets norm = 0,
-        # so no one earns a vote — there is no signal to route on.
+        # Normalize per neighbor
         n_min   = neighbor_scores.min(axis=2, keepdims=True)
         n_max   = neighbor_scores.max(axis=2, keepdims=True)
         n_range = n_max - n_min
@@ -115,13 +90,10 @@ class KNORAIU(KNNBase):
         # competent[b, i, j] = True if model j passes the threshold on neighbor i.
         competent = norm >= th                         # (batch, k, n_models)
 
-        # Inverse distance weights: closer neighbors have more influence.
-        # Clamp denominators to 1e-8 to avoid division by zero for exact matches.
+        # Inverse distance weights
         inv_dist = 1.0 / np.maximum(distances, 1e-8)  # (batch, k)
 
-        # Weighted votes: for each model, sum the inverse distances of its
-        # competent neighbors. This is the only difference from KNORA-U, which
-        # uses uniform weights (equivalently inv_dist = ones).
+        # Weighted votes
         votes = (competent * inv_dist[:, :, np.newaxis]).sum(axis=1)  # (batch, n_models)
         total = votes.sum(axis=1, keepdims=True)
 

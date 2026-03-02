@@ -81,7 +81,7 @@ def resolve_metric(metric):
                 f"Pass a callable for custom metrics."
             )
         return name, _METRICS[name]
-    return None, metric   # custom callable; shape validation will be skipped
+    return None, metric
 
 
 # ---------------------------------------------------------------------------
@@ -135,22 +135,11 @@ def make_finder(preset, k, finder=None, **kwargs):
     else:
         raise ValueError(f"Unknown finder '{finder_type}'.")
 
-
-# ---------------------------------------------------------------------------
 # fit() input validation
-# ---------------------------------------------------------------------------
 
 def prep_fit_inputs(features, y, preds_dict, metric_name):
     """
     Convert all fit() inputs to numpy arrays and validate consistency.
-
-    Checks
-    ------
-    1. features and y have the same number of rows.
-    2. Every prediction array in preds_dict aligns row-for-row with y.
-    3. For named built-in metrics, the prediction array dimensionality matches
-       what the metric expects (1D for scalar metrics, 2D for probability metrics).
-       Custom callables are trusted without shape checking.
 
     Returns
     -------

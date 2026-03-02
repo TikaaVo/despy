@@ -2,7 +2,6 @@ import numpy as np
 import warnings
 
 # FAISS IVF k-means needs at least this many training samples per cell to converge.
-# Below this ratio the training loop can hang indefinitely.
 _FAISS_MIN_SAMPLES_PER_CELL = 40
 
 
@@ -96,7 +95,7 @@ class FaissNeighborFinder(NeighborFinder):
             if self.n_cells is None:
                 self.n_cells = min(int(np.sqrt(n_samples)), 4096)
 
-            # Auto-reduce n_cells if dataset is too small; otherwise training hangs.
+            # Reduce n_cells if dataset is too small
             min_required = self.n_cells * _FAISS_MIN_SAMPLES_PER_CELL
             if n_samples < min_required:
                 safe_cells = max(1, n_samples // _FAISS_MIN_SAMPLES_PER_CELL)
@@ -153,7 +152,7 @@ class FaissNeighborFinder(NeighborFinder):
         if X.shape[0] == 0:
             return np.empty((0, k), dtype=np.float32), np.empty((0, k), dtype=np.int64)
         distances, indices = self.index_.search(X, k)
-        # FAISS returns squared L2; clamp to 0 before sqrt to handle floating-point noise.
+        # FAISS returns squared L2; clamp to 0 before sqrt
         return np.sqrt(np.maximum(distances, 0)), indices
 
 
@@ -167,7 +166,6 @@ class AnnoyNeighborFinder(NeighborFinder):
         self.n_trees = n_trees
         self.metric = metric
         # Annoy's recommended default; the previous value (n_trees * k * 50)
-        # caused near-freezes on large batches.
         self.search_k = n_trees * k if search_k == -1 else search_k
         self.index_ = None
         self.n_samples_ = None
@@ -207,9 +205,7 @@ class AnnoyNeighborFinder(NeighborFinder):
             self.index_.add_item(i, vec.tolist())
         self.index_.build(self.n_trees)
 
-        # Sanity check: verify the index returns the expected number of neighbors.
-        # Annoy silently returns 1 result on Apple Silicon (M1/M2/M3) due to a
-        # known ARM64 compilation bug, regardless of n_trees or search_k.
+        # Verify the index returns the expected number of neighbors
         test_vec = X[0].tolist()
         test_result = self.index_.get_nns_by_vector(test_vec, self.k, search_k=self.search_k)
         if len(test_result) < self.k:
@@ -334,6 +330,6 @@ class HNSWNeighborFinder(NeighborFinder):
                 np.array([idx  for idx, _ in results]),
             )
 
-        # hnswlib returns (indices, distances) — reversed from convention.
+        # hnswlib returns (indices, distances).
         indices, distances = self.index_.knn_query(X, k=k)
         return distances, indices

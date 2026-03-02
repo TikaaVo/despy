@@ -395,7 +395,7 @@ def run_regression(loader, seed=SEED, verbose=True):
         _print(f"    v DES {label:<30}  fit: {fit_times[method]:6.2f}ms"
                f"  |  predict: {predict_times[method]:6.2f}ms")
 
-    analyze(X_val_s, y_val, val_preds, metric='mae', mode='min', k=20)
+    #analyze(X_val_s, y_val, val_preds, metric='mae', mode='min', k=20)
 
     best_mae = mean_absolute_error(y_test, test_preds[best_name])
     ge_mae   = mean_absolute_error(y_test, apply_global_weights_reg(test_preds, ge_w))
@@ -497,7 +497,7 @@ def run_classification(loader, k=K_CLF, seed=SEED, verbose=True):
         _print(f"    v DES {label:<30}  fit: {fit_times[method]:6.2f}ms"
                f"  |  predict: {predict_times[method]:6.2f}ms")
 
-    analyze(X_val_s, y_val, val_probas, metric='log_loss', mode='min', k=20)
+    #analyze(X_val_s, y_val, val_probas, metric='log_loss', mode='min', k=20)
 
     best_single_acc = accuracy_score(y_test, models[best_name].predict(X_test))
     ge_acc          = accuracy_score(

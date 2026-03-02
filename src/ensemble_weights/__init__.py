@@ -1,29 +1,9 @@
 """
 ensemble_weights — Dynamic Ensemble Selection library.
 
-Recommended usage
------------------
-Import algorithm classes directly from their modules:
-
-    from ensemble_weights.des.knndws import KNNDWS
-    from ensemble_weights.des.ola    import OLA
-    from ensemble_weights.des.knorau import KNORAU
-    from ensemble_weights.des.knorae import KNORAE
-
-Or import them from the top level:
-
-    from ensemble_weights import KNNDWS, OLA, KNORAU, KNORAE
-
-For benchmark loops where you need to select an algorithm by string:
-
-    from ensemble_weights import DynamicRouter
-
-    for method in ['knn-dws', 'ola', 'knora-u', 'knora-e']:
-        router = DynamicRouter(task='classification', method=method, ...)
-
 Metrics
 -------
-Pass a metric name string and it is resolved automatically:
+Pass a metric name string:
 
     KNNDWS(task='classification', metric='log_loss', mode='min')
 

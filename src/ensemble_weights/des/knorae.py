@@ -11,21 +11,6 @@ class KNORAE(KNNBase):
     """
     KNORAE: K-Nearest Oracles — Eliminate.
 
-    For each test point, finds the largest neighborhood (up to K neighbors) in
-    which at least one model is competent on every single neighbor. Only those
-    models contribute, with equal weight.
-
-    The "Eliminate" name reflects the search: start with all K neighbors and
-    progressively shrink until the intersection of competent models is non-empty.
-    At K=1, the best model on the nearest neighbor always wins, guaranteeing a
-    result. If even K=1 yields no signal (all models equally scored), weights
-    fall back to uniform.
-
-    More aggressive than KNORAU — tends to concentrate weight on a single
-    model. Performs well when one model genuinely dominates a tight local
-    region; tends to underperform on noisy datasets or when no model is
-    regionally dominant.
-
     Parameters
     ----------
     task : str
@@ -42,14 +27,6 @@ class KNORAE(KNNBase):
         Regression: use 1.0.
     preset : str
         Neighbor search preset. Default: 'balanced'. See list_presets().
-
-    Examples
-    --------
-        from ensemble_weights.des.knorae import KNORAE
-
-        router = KNORAE(task='classification', metric='log_loss', mode='min', k=20)
-        router.fit(X_val, y_val, probas_dict)
-        weights = router.predict(X_test)
     """
 
     def __init__(self, task, metric='mae', mode='min', k=10,
@@ -106,8 +83,6 @@ class KNORAE(KNNBase):
         neighbor_scores = self.matrix[indices]   # (batch, k, n_models)
 
         # Normalize per neighbor independently.
-        # Range = 0 neighbors give every model norm = 0, so none pass a positive
-        # threshold — correct, since identical scores carry no routing signal.
         n_min   = neighbor_scores.min(axis=2, keepdims=True)
         n_max   = neighbor_scores.max(axis=2, keepdims=True)
         n_range = n_max - n_min
@@ -117,8 +92,7 @@ class KNORAE(KNNBase):
         resolved  = np.zeros(batch_size, dtype=bool)
         weights   = np.zeros((batch_size, n_models))
 
-        # Shrink from K down to 1. Resolve samples as soon as a non-empty
-        # intersection is found. Stop early once all samples are resolved.
+        # Shrink from K down to 1. Stop early once all samples are resolved.
         for curr_k in range(k, 0, -1):
             if resolved.all():
                 break
@@ -135,7 +109,7 @@ class KNORAE(KNNBase):
                 )
                 resolved |= newly_resolved
 
-        # Uniform fallback for samples where K=1 had no signal.
+        # Fallback for samples where K=1 had no signal.
         if not resolved.all():
             weights[~resolved] = 1.0 / n_models
 

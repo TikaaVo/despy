@@ -1,10 +1,6 @@
 """
 Per-sample metric functions for Dynamic Ensemble Selection.
 
-Each function takes a single ground-truth value and a single prediction and
-returns a float score. They are passed to algorithm classes via the `metric`
-parameter and called once per validation sample during fit().
-
 Scalar metrics (y_pred is a single number)
 -------------------------------------------
 mae            Absolute error.                                  mode='min'
@@ -14,26 +10,12 @@ accuracy       1.0 if correct, 0.0 otherwise.                  mode='max'
 
 Probability metrics (y_pred is a 1D array of class probabilities)
 ------------------------------------------------------------------
-Use these with predict_proba() output. Pass the probability array for one
-sample as y_pred; y_true should be the integer class index.
 
 log_loss       Negative log-probability of the true class.     mode='min'
                Continuous signal — a model that assigns 0.9 to the correct
                class scores much better than one that assigns 0.51.
 prob_correct   Probability assigned to the true class.         mode='max'
                Simpler alternative to log_loss; linear rather than log-scaled.
-
-Usage
------
-    from ensemble_weights.des.knndws import KNNDWS
-    from ensemble_weights.metrics import log_loss
-
-    router = KNNDWS(task='classification', metric=log_loss, mode='min', k=20)
-
-You can also pass the metric name as a string and it will be resolved
-automatically:
-
-    router = KNNDWS(task='classification', metric='log_loss', mode='min', k=20)
 """
 import math
 
@@ -78,8 +60,7 @@ def prob_correct(y_true, y_pred):
     return float(y_pred[int(y_true)])
 
 
-# Internal registry — used by algorithm classes when metric is passed as a string.
-# Not part of the public API; users should import the named functions above.
+# Internal registry
 _METRICS = {
     'mae':          mae,
     'mse':          mse,

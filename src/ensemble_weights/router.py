@@ -1,20 +1,7 @@
 """
 DynamicRouter — string-based factory for programmatic algorithm selection.
 
-Prefer importing algorithm classes directly for new code:
-
-    from ensemble_weights.des.knndws import KNNDWS
-    from ensemble_weights.des.ola    import OLA
-    from ensemble_weights.des.knorau import KNORAU
-    from ensemble_weights.des.knorae import KNORAE
-
-Use DynamicRouter when you need to choose an algorithm via a string at runtime,
-for example in benchmark loops:
-
-    from ensemble_weights import DynamicRouter
-
-    for method in ['knn-dws', 'ola', 'knora-u', 'knora-e']:
-        router = DynamicRouter(task='classification', method=method, ...)
+Use DynamicRouter when you need to choose an algorithm via a string at runtime.
 """
 from ensemble_weights.des.knndws   import KNNDWS
 from ensemble_weights.des.ola      import OLA
@@ -36,10 +23,6 @@ _METHOD_CLASSES = {
 class DynamicRouter:
     """
     String-based factory for Dynamic Ensemble Selection.
-
-    Creates and delegates to one of the four algorithm classes based on the
-    `method` string. Prefer importing algorithm classes directly (see module
-    docstring) unless you genuinely need runtime method selection.
 
     Parameters
     ----------
@@ -101,7 +84,7 @@ class DynamicRouter:
                 threshold=threshold, preset=preset, **extra, **kwargs
             )
 
-    # ── Delegate fit / predict ────────────────────────────────────────
+    # Delegate fit / predict
 
     def fit(self, features, y, preds_dict):
         """
@@ -142,7 +125,7 @@ class DynamicRouter:
         else:
             return self._des.predict(x, temperature=temperature, threshold=threshold)
 
-    # ── Class methods ─────────────────────────────────────────────────
+    # Class methods
 
     @classmethod
     def from_data_size(cls, n_samples, n_features, task, method='knn-dws',

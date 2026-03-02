@@ -11,16 +11,6 @@ class KNNDWS(KNNBase):
     """
     KNN-DWS: K-Nearest Neighbors with Distance-Weighted Softmax.
 
-    For each test point, retrieves its K nearest validation neighbors, averages
-    each model's local scores, normalizes to [0, 1] within the neighborhood,
-    applies an optional competence gate, then weights models via softmax.
-
-    This is the only algorithm here that never makes hard binary decisions —
-    every step is soft and continuous. When one model clearly dominates a
-    neighborhood, the softmax sharpens toward it. When models are close, weights
-    spread out. This gives it natural behavior across both regimes without
-    needing to choose in advance.
-
     Parameters
     ----------
     task : str
@@ -42,22 +32,6 @@ class KNNDWS(KNNBase):
         (min-metrics) and 1.0 for classification (max-metrics) at predict time.
     preset : str
         Neighbor search preset. Default: 'balanced'. See list_presets().
-
-    Examples
-    --------
-    Regression:
-
-        from ensemble_weights.des.knndws import KNNDWS
-
-        router = KNNDWS(task='regression', metric='mae', mode='min', k=20)
-        router.fit(X_val, y_val, {'model_a': preds_a, 'model_b': preds_b})
-        weights = router.predict(X_test)   # list of {name: weight} dicts
-
-    Classification with probabilities:
-
-        router = KNNDWS(task='classification', metric='log_loss', mode='min', k=20)
-        router.fit(X_val, y_val, {'lr': lr_probas, 'knn': knn_probas})
-        weights = router.predict(X_test)
     """
 
     def __init__(self, task, metric='mae', mode='min', k=10,
@@ -116,26 +90,24 @@ class KNNDWS(KNNBase):
 
         _, indices = self.model.kneighbors(x)
 
-        # Average each model's scores over the K neighbors: (batch, n_models)
+        # Average each model's scores over the K neighbors
         avg_scores = self.matrix[indices].mean(axis=1)
 
-        # Normalize per neighborhood: local best = 1.0, worst = 0.0.
-        # Uniform neighborhoods (range = 0) stay as-is.
+        # Normalize per neighborhood
         local_min   = avg_scores.min(axis=1, keepdims=True)
         local_max   = avg_scores.max(axis=1, keepdims=True)
         local_range = local_max - local_min
         norm_scores = (avg_scores - local_min) / np.where(local_range > 0, local_range, 1.0)
 
-        # Competence gate: zero out models below threshold.
-        # Falls back to the single best if nothing passes.
+        # Zero out models below threshold.
+        # If nothing passes: go for single best
         if th > 0:
             gate      = norm_scores >= th
             any_pass  = gate.any(axis=1, keepdims=True)
             gate      = np.where(any_pass, gate, norm_scores == 1.0)
             norm_scores = norm_scores * gate
 
-        # Numerically stable softmax; masked models cannot contribute through
-        # the denominator either.
+        # Softmax
         max_scores = norm_scores.max(axis=1, keepdims=True)
         exp_scores = np.exp((norm_scores - max_scores) / t)
         if th > 0:
