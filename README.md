@@ -179,9 +179,7 @@ heavily by time-of-day pattern, so equal-weight blending is actively harmful.
 | MNIST Digits | 96.83% | +0.66% | +0.83% (KNORA-E) | +1.12% (KNORA-U) |
 | Pendigits | 99.02% | +0.25% | **+0.32%** (KNORA-E) | +0.30% (KNORA-E) |
 
-despy matches or beats DESlib on 3 of 4 datasets. On MNIST, DESlib's KNORA-U
-outperforms by ~0.3% — DESlib uses weighted hard voting while despy blends
-probability arrays, which accounts for most of the gap.
+despy closely matches or beats DESlib on 3 of 4 datasets.
 
 ### Speed (mean ms fit + predict, 10 seeds)
 
