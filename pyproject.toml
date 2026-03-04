@@ -3,17 +3,32 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "despys"
+name = "despy"
 version = "0.1.0"
-description = "Dynamic model weighting"
+description = "Dynamic Ensemble Selection for any ML framework"
 readme = "README.md"
+license = { text = "MIT" }
 requires-python = ">=3.8"
+authors = [
+    { name = "Tikhon Vodyanov" }
+]
+keywords = ["ensemble", "machine learning", "dynamic ensemble selection", "model routing"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 dependencies = [
-    "numpy",
-    "pandas",
-    "scikit-learn"
+    "numpy>=1.21",
+    "scikit-learn>=1.0",
 ]
 
+[project.optional-dependencies]
+fast = ["faiss-cpu>=1.7"]
+hnsw = ["hnswlib>=0.7"]
+all  = ["faiss-cpu>=1.7", "hnswlib>=0.7"]
+
 [project.urls]
-Homepage = "https://github.com/TikaaVo/Ensemble-weights"
-Repository = "https://github.com/TikaaVo/Ensemble-weights.git"
+Homepage = "https://github.com/TikaaVo/despy"
+Repository = "https://github.com/TikaaVo/despy.git"

@@ -81,13 +81,15 @@ class KNORAU(KNNBase):
         _, indices = self.model.kneighbors(x)
         neighbor_scores = self.matrix[indices]   # (batch, k, n_models)
 
-        # Normalize per neighbor
+        # Normalize per neighbor: best model = 1.0, worst = 0.0.
         n_min = neighbor_scores.min(axis=2, keepdims=True)
         n_max = neighbor_scores.max(axis=2, keepdims=True)
         n_range = n_max - n_min
-        norm = (neighbor_scores - n_min) / np.where(n_range > 0, n_range, 1.0)
+        norm = np.where(n_range > 0,
+                        (neighbor_scores - n_min) / n_range,
+                        1.0)   # tied → all equally competent
 
-        # votes[b, j] = number of neighbors where model j exceeds the threshold.
+        # votes[b, j] = number of neighbours where model j exceeds the threshold.
         votes = (norm >= th).sum(axis=1).astype(float)   # (batch, n_models)
         total_votes = votes.sum(axis=1, keepdims=True)
 

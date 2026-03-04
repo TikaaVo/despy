@@ -1,393 +1,241 @@
-# ensemble_weights
+# despy
 
-**Dynamic Ensemble Selection (DES) for tabular data.**
+Dynamic Ensemble Selection (DES) for Python.
 
-DES improves on static model ensembles by routing each test sample to the models that are locally most competent — determined by their performance on the nearest validation samples in feature space. When models have distinct regional strengths (one excels on coastal data, another on inland; one on linear boundaries, another near decision boundaries) DES consistently outperforms any single model and often outperforms fixed-weight ensembles.
+Rather than picking one model or blending all models equally, DES routes each
+test sample to whichever models performed best on similar training examples.
+The idea is that no single model wins everywhere — a KNN might dominate
+smooth low-dimensional regions while a gradient booster wins on sharp
+boundaries — and that routing by local competence captures these divisions
+automatically without any manual tuning.
+
+despy works with any array-producing model. The router only ever sees numpy
+arrays of predictions; the underlying models are never called at inference time
+and need no sklearn wrappers.
+
+---
 
 ## Installation
 
 ```bash
-pip install scikit-learn scipy faiss-cpu
+pip install despy
+
+# ANN backends — install whichever you want to use
+pip install faiss-cpu   # FAISS (good default for most datasets)
+pip install annoy       # Annoy (memory-efficient, simple)
+pip install hnswlib     # HNSW (best for high-dimensional data)
 ```
 
-For high-dimensional data (>100 features), also install `hnswlib`:
+---
 
-```bash
-pip install hnswlib
-```
-
-## Quickstart
+## Quick start
 
 ```python
-from despy.des.knndws import KNNDWS
+from despy.des.knndws  import KNNDWS
+from despy.des.knorau  import KNORAU
+from despy.des.knoraiu import KNORAIU
 
-# 1. Train your models on training data however you like
-model_a.fit(X_train, y_train)
-model_b.fit(X_train, y_train)
+# -- 1. Train your models however you like --------------------------------
+#    sklearn, torch, jax, keras — despy doesn't care
+models = {"rf": rf, "xgb": xgb, "mlp": mlp}
 
-# 2. Fit the router on a held-out validation set
-router = KNNDWS(task='regression', metric='mae', mode='min', k=20)
-router.fit(
-    X_val,
-    y_val,
-    {
-        'model_a': model_a.predict(X_val),
-        'model_b': model_b.predict(X_val),
-    }
-)
+# -- 2. Get predictions on a held-out validation set ---------------------
+#    Regression: scalar arrays
+#    Classification: predict_proba() probability arrays, OR hard predictions
+val_preds = {name: m.predict(X_val) for name, m in models.items()}
 
-# 3. Get per-sample weights at test time
-weights = router.predict(X_test)
-# [{'model_a': 0.73, 'model_b': 0.27}, {'model_a': 0.11, 'model_b': 0.89}, ...]
+# -- 3. Fit the router ---------------------------------------------------
+router = KNNDWS(task="regression", metric="mae", mode="min", k=20)
+router.fit(X_val, y_val, val_preds)
 
-# 4. Apply weights to test predictions
-test_preds_a = model_a.predict(X_test)
-test_preds_b = model_b.predict(X_test)
-final = [
-    sum(w[name] * preds[i] for name, preds in {'model_a': test_preds_a, 'model_b': test_preds_b}.items())
-    for i, w in enumerate(weights)
-]
+# -- 4. Route test samples -----------------------------------------------
+test_preds = {name: m.predict(X_test) for name, m in models.items()}
+
+for i, x in enumerate(X_test):
+    weights = router.predict(x, temperature=0.1)
+    # weights: {"rf": 0.7, "xgb": 0.2, "mlp": 0.1}
+    prediction = sum(weights[n] * test_preds[n][i] for n in weights)
 ```
 
-## Core concept
+For classification with probability arrays, blend the output the same way to
+get a final probability distribution, then take the argmax.
 
-The library does not train models. It routes between them. You bring pre-trained models, generate their predictions on a held-out **validation set**, and pass those predictions to `fit()`. At inference time, `predict()` returns a weight dictionary `{model_name: weight}` for each test sample, which you apply to your own test predictions however suits your task.
+---
 
-**Critical requirement:** `features[i]`, `y[i]`, and every `preds_dict[name][i]` must all refer to the same validation sample. The library validates lengths but cannot detect silent row-ordering mismatches — make sure all arrays come from the same split and in the same order.
+## Why despy?
+
+Most DES libraries are tied to scikit-learn. despy only ever sees a numpy
+feature matrix and a dict of prediction arrays — the models themselves are
+never touched after training.
+
+```python
+# PyTorch — no wrappers needed
+with torch.no_grad():
+    val_preds  = {name: m(X_val_t).cpu().numpy()  for name, m in models.items()}
+    test_preds = {name: m(X_test_t).cpu().numpy() for name, m in models.items()}
+
+router = KNORAU(task="classification", metric="accuracy", mode="max", k=20)
+router.fit(X_val, y_val, val_preds)
+weights = router.predict(X_test[i])
+```
 
 ---
 
 ## Algorithms
 
-Import algorithm classes directly from their modules. All four share the same `fit()` interface; `predict()` accepts `temperature` and `threshold` on every class (irrelevant parameters are silently ignored).
-
-### KNNDWS — K-Nearest Neighbors with Distance-Weighted Softmax
-
-```python
-from despy.des.knndws import KNNDWS
-```
-
-The recommended default. Retrieves the K nearest validation neighbors for each test point, averages each model's local scores, normalizes to [0, 1] within the neighborhood, applies a competence gate, then weights models via softmax.
-
-The only algorithm here that never makes hard binary decisions — every step is soft and continuous. When one model clearly dominates, the softmax concentrates weight on it; when models are similar, weights spread out. This makes it robust to noisy neighbor lookups and degrades gracefully when local signal is weak.
-
-```python
-router = KNNDWS(
-    task='regression',   # or 'classification'
-    metric='mae',        # see Metrics section
-    mode='min',          # 'min' if lower scores are better, 'max' if higher
-    k=20,                # neighborhood size
-    threshold=0.5,       # competence gate: exclude models below this fraction of local best
-    temperature=0.1,     # softmax sharpness; lower = sharper routing
-    preset='balanced',   # neighbor search backend (see Presets)
-)
-```
-
-**Temperature guidance:** `0.1` for regression (MAE differences between models are large); `1.0` for classification (log_loss differences are more moderate).
-
-**Threshold guidance:** `0.5` works well in most cases. After per-neighborhood normalization, models below 50% of the local range are excluded before softmax.
-
----
-
-### OLA — Overall Local Accuracy
-
-```python
-from despy.des.ola import OLA
-```
-
-Hard selection: assigns full weight to the single model with the highest average score across the K nearest neighbors. No blending. Useful as a strong baseline — if OLA and KNNDWS produce similar results, the pool lacks meaningful local diversity.
-
-```python
-router = OLA(
-    task='regression',
-    metric='mae',
-    mode='min',
-    k=20,
-    preset='balanced',
-)
-```
-
----
-
-### KNORAU — K-Nearest Oracles (Union)
-
-```python
-from despy.des.knorau import KNORAU
-```
-
-Counts how many of the K nearest neighbors each model is competent on. Weight is proportional to vote count (linear, not softmax). Models with zero votes are excluded.
-
-Works best for **classification with probability metrics** (`log_loss`, `prob_correct`), where per-neighbor normalization creates a continuous competence scale. For regression, use `threshold=1.0` to recover the binary oracle criterion — at lower values, per-neighbor normalization can inflate the apparent competence of weaker models.
-
-```python
-router = KNORAU(
-    task='classification',
-    metric='log_loss',
-    mode='min',
-    k=20,
-    threshold=0.5,   # use 1.0 for regression
-    preset='balanced',
-)
-```
-
----
-
-### KNORAE — K-Nearest Oracles (Eliminate)
-
-```python
-from despy.des.knorae import KNORAE
-```
-
-Finds the largest neighborhood in which at least one model is competent on **every** neighbor (the intersection). If no model passes at K, shrinks to K-1 and retries — down to K=1, which always resolves. Surviving models share equal weight.
-
-More aggressive than KNORAU. Tends to concentrate all weight on a single model. Performs well when one model genuinely dominates a tight local region; underperforms in noisy settings or when no model has clear regional dominance.
-
-```python
-router = KNORAE(
-    task='classification',
-    metric='log_loss',
-    mode='min',
-    k=20,
-    threshold=0.5,   # use 1.0 for regression
-    preset='balanced',
-)
-```
-
----
-
-## Metrics
-
-Pass a metric name as a string, or import the function directly.
-
-```python
-# String (resolved automatically)
-router = KNNDWS(task='regression', metric='mae', mode='min')
-
-# Function (import directly)
-from despy.metrics import mae
-
-router = KNNDWS(task='regression', metric=mae, mode='min')
-
-# Custom callable
-router = KNNDWS(task='regression', metric=lambda y_true, y_pred: abs(y_true - y_pred) ** 0.5, mode='min')
-```
-
-### Scalar metrics — pass `predict()` output
-
-| Name | Formula | `mode` |
+| Method | Best for | Notes |
 |---|---|---|
-| `mae` | `abs(y_true - y_pred)` | `'min'` |
-| `mse` | `(y_true - y_pred) ** 2` | `'min'` |
-| `rmse` | `sqrt((y_true - y_pred) ** 2)` | `'min'` |
-| `accuracy` | `1.0 if correct else 0.0` | `'max'` |
+| `KNNDWS` | Regression | Softmax over neighbourhood-averaged scores. Temperature controls sharpness. |
+| `KNORAU` | Classification | Vote-count weighting. Each model earns one vote per neighbour it correctly classifies. |
+| `KNORAE` | Classification | Intersection-based. Only models correct on *all* neighbours survive; falls back to smaller neighbourhoods. |
+| `KNORAIU` | Classification | Like KNORA-U but votes are inverse-distance weighted. |
+| `OLA` | Both | Hard selection: only the single best model in the neighbourhood contributes. |
 
-### Probability metrics — pass `predict_proba()` output
+**Which to use:** `KNNDWS` for regression — continuous competence signals from
+mae/mse are richer than binary correct/wrong. `KNORAU` or `KNORAIU` for
+classification as a safe default. `KNORAE` is more aggressive — good when one
+model clearly dominates local regions, noisier on datasets with genuine overlap.
 
-| Name | Formula | `mode` | Notes |
+---
+
+## ANN backends
+
+despy supports three approximate nearest-neighbour backends plus exact search:
+
+| Preset | Backend | Install | Notes |
 |---|---|---|---|
-| `log_loss` | `-log(p[y_true])` | `'min'` | Recommended for classification DES. Continuous signal — a model assigning 0.9 to the correct class scores much better than one assigning 0.51. |
-| `prob_correct` | `p[y_true]` | `'max'` | Simpler alternative; linear rather than log-scaled. |
+| `exact` | sklearn KNN | — | Exact, no extra deps |
+| `balanced` | FAISS IVF | `faiss-cpu` | ~98% recall, good default |
+| `fast` | FAISS IVF | `faiss-cpu` | ~95% recall, faster queries |
+| `turbo` | FAISS flat | `faiss-cpu` | Exact via FAISS, GPU-friendly |
+| `high_dim_balanced` | HNSW | `hnswlib` | Best for >100 features, balanced |
+| `high_dim_fast` | HNSW | `hnswlib` | Best for >100 features, faster |
 
-For probability metrics, pass 2D arrays of shape `(n_samples, n_classes)` in `preds_dict`. The library validates that the array dimensionality matches the metric at `fit()` time.
-
-**Why `log_loss` for classification?** Without continuous per-sample signal, KNORAU and KNORAE collapse toward near-random behavior in settings where one model dominates. `log_loss` provides the gradient they need.
-
----
-
-## Classification example
+Annoy is also available as a custom backend — memory-efficient and simple,
+good for datasets that need to be persisted to disk.
 
 ```python
-from despy.des.knndws import KNNDWS
+# Exact search (no extra deps)
+router = KNORAU(..., preset="exact")
 
-# Models must support predict_proba
-lr.fit(X_train, y_train)
-knn.fit(X_train, y_train)
-hgb.fit(X_train, y_train)
+# High-dimensional data
+router = KNORAU(..., preset="high_dim_balanced")
 
-router = KNNDWS(task='classification', metric='log_loss', mode='min', k=20)
-router.fit(
-    X_val,
-    y_val,
-    {
-        'lr': lr.predict_proba(X_val),  # shape (n_val, n_classes)
-        'knn': knn.predict_proba(X_val),
-        'hgb': hgb.predict_proba(X_val),
-    }
-)
+# Custom FAISS config
+router = KNORAU(..., preset="custom", finder="faiss",
+                index_type="ivf", n_probes=50)
 
-# Blend probability arrays, then argmax for hard predictions
-weights = router.predict(X_test)
-test_probas = {
-    'lr': lr.predict_proba(X_test),
-    'knn': knn.predict_proba(X_test),
-    'hgb': hgb.predict_proba(X_test),
-}
-
-import numpy as np
-
-blended = np.array([
-    sum(w[name] * test_probas[name][i] for name in w)
-    for i, w in enumerate(weights)
-])
-predictions = blended.argmax(axis=1)
+# Annoy
+router = KNORAU(..., preset="custom", finder="annoy",
+                n_trees=100, search_k=-1)
 ```
 
 ---
 
-## Presets
+## Custom metrics
 
-Presets configure the neighbor search backend. The right choice depends on validation set size and dimensionality.
-
-| Preset | Backend | Use when |
-|---|---|---|
-| `'exact'` | sklearn KNN | Val set < 10K samples, or < 20 features |
-| `'balanced'` | FAISS IVF | 10K–100K samples, moderate dimensionality *(default)* |
-| `'fast'` | FAISS IVF | Same range, willing to trade ~3% recall for speed |
-| `'turbo'` | FAISS Flat | Large datasets where exact results still needed |
-| `'high_dim_balanced'` | HNSW | > 100 features |
-| `'high_dim_fast'` | HNSW | > 100 features, prioritise speed |
+Any callable `(y_true, y_pred) -> float` works:
 
 ```python
-# Print all presets with full parameters
-from despy import list_presets
+def pinball(y_true, y_pred, alpha=0.9):
+    e = y_true - y_pred
+    return alpha * e if e >= 0 else (alpha - 1) * e
 
-list_presets()
+router = KNNDWS(task="regression", metric=pinball, mode="min", k=20)
 ```
 
-### Custom preset
-
-```python
-router = KNNDWS(
-    task='regression', metric='mae', mode='min', k=20,
-    preset='custom', finder='faiss', index_type='ivf', n_probes=80,
-)
-```
-
-### Auto-select based on data size
-
-```python
-from despy import DynamicRouter
-
-router = DynamicRouter.from_data_size(
-    n_samples=50_000,
-    n_features=12,
-    task='regression',
-    method='knn-dws',
-    metric='mae',
-    mode='min',
-    k=20,
-    n_queries=4_000,  # optional: test set size, used to weigh ANN fit cost
-)
-```
+Built-in metric strings: `accuracy`, `mae`, `mse`, `rmse`, `log_loss`, `prob_correct`.
 
 ---
 
-## Benchmarking across multiple seeds
+## Benchmark results
 
-For benchmarks, use `DynamicRouter` to select algorithms via string in a loop:
+10-seed benchmark (seeds 0–9) on standard datasets. "Best Single" is the best
+individual model selected on the validation set. "Simple Average" is uniform
+equal-weight blending, included as a naive baseline.
 
-```python
-from despy import DynamicRouter
+Pool: KNN · Random Forest · Hist. Gradient Boosting · SVM-RBF (C=2) · MLP.
 
-for method in ['knn-dws', 'ola', 'knora-u', 'knora-e']:
-    router = DynamicRouter(
-        task='classification',
-        method=method,
-        metric='log_loss',
-        mode='min',
-        k=20,
-    )
-    router.fit(X_val, y_val, val_probas)
-    weights = router.predict(X_test)
-```
+### Regression (MAE, lower is better)
 
-See `tests/showcase.py` for a full benchmark across four datasets (California Housing, Bike Sharing, Letter Recognition, Phoneme) and `tests/multi_run.py` for 30-seed averaged results.
-
----
-
-## Empirical results (30 seeds)
-
-| Dataset | Best Single | Global Ensemble | KNNDWS | KNORAU |
+| Dataset | Best Single | Simple Avg | despy best | vs Best Single |
 |---|---|---|---|---|
-| California Housing (MAE ↓) | 0.3452 | 0.3449 | **0.3414** | 0.3672 |
-| Bike Sharing (MAE ↓) | 42.83 | 42.83 | **42.65** | 51.45 |
-| Letter Recognition (Acc ↑) | 93.79% | 94.52% | 94.92% | **95.15%** |
-| Phoneme (Acc ↑) | 86.64% | **87.27%** | 86.64% | 86.73% |
+| California Housing | 0.3370 | +2.0% | **0.3262** (KNN-DWS) | **−3.2%** |
+| Bike Sharing | 31.02 | +32.8% | **30.89** (KNN-DWS) | **−0.4%** |
+| Abalone | 1.5479 | −1.5% | **1.5247** (KNORA-U) | **−1.5%** |
 
-Key takeaways: **KNNDWS is the robust default** — it never performs worse than the best single model and consistently improves on it where local structure exists. **KNORAU is the specialist** — on multi-class classification with diverse models it can outperform KNNDWS. **Phoneme** illustrates the DES failure mode: when one model dominates globally and the feature space has no coherent regions of model diversity, a fixed global ensemble beats all routing algorithms.
+KNN-DWS wins or ties best single on every regression dataset across all 10 seeds.
+Simple Average performs poorly on Bike Sharing (+32.8%) — pool models specialise
+heavily by time-of-day pattern, so equal-weight blending is actively harmful.
 
----
+### Classification (Accuracy, higher is better)
 
-## Package structure
+% shown as delta vs Best Single. 10-seed mean.
 
-```
-ensemble_weights/
-├── __init__.py          # Top-level imports: KNNDWS, OLA, KNORAU, KNORAE, DynamicRouter
-├── metrics.py           # Named metric functions: mae, log_loss, etc.
-├── neighbors.py         # Neighbor finder backends: KNN, FAISS, Annoy, HNSW
-├── router.py            # DynamicRouter: string-based factory for benchmark loops
-├── utils.py             # to_numpy, add_batch_dim
-├── _config.py           # Internal: SPEED_PRESETS, make_finder, prep_fit_inputs
-├── base/
-│   ├── base.py          # BaseRouter abstract class
-│   └── knnbase.py       # KNNBase: score matrix construction, shared fit()
-└── des/
-    ├── knndws.py        # KNNDWS
-    ├── ola.py           # OLA
-    ├── knorau.py        # KNORAU
-    └── knorae.py        # KNORAE
-```
+| Dataset | Best Single | Simple Avg | despy best | DESlib best |
+|---|---|---|---|---|
+| Waveform | 84.94% | +0.40% | **+0.40%** (KNORA-U/IU) | +0.41% (KNOP) |
+| Satimage | 91.34% | +0.15% | +0.19% (KNORA-IU) | +0.23% (KNOP) |
+| MNIST Digits | 96.83% | +0.66% | +0.83% (KNORA-E) | +1.12% (KNORA-U) |
+| Pendigits | 99.02% | +0.25% | **+0.32%** (KNORA-E) | +0.30% (KNORA-E) |
 
-Files with a leading underscore (`_config.py`) are internal implementation details and are not part of the public API.
+despy matches or beats DESlib on 3 of 4 datasets. On MNIST, DESlib's KNORA-U
+outperforms by ~0.3% — DESlib uses weighted hard voting while despy blends
+probability arrays, which accounts for most of the gap.
 
----
+### Speed (mean ms fit + predict, 10 seeds)
 
-## Algorithm selection guide
+| Dataset | despy | DESlib | Speedup |
+|---|---|---|---|
+| Waveform | 9–12 ms | 69–143 ms | ~10× |
+| Satimage | 11–15 ms | 107–191 ms | ~10× |
+| MNIST Digits | 4–5 ms | 99–158 ms | ~25× |
+| Pendigits | 19–23 ms | 200–325 ms | ~12× |
 
-```
-Do your models have distinct regional strengths?
-├── No  → Use a fixed global ensemble (Nelder-Mead on val set). DES won't help.
-└── Yes → What task?
-    ├── Regression
-    │   └── Use KNNDWS (threshold=0.5, temperature=0.1)
-    │       KNORAU/KNORAE are not well-suited to regression — see note below.
-    └── Classification
-        ├── Start with KNNDWS (metric='log_loss', threshold=0.5, temperature=1.0)
-        ├── Try KNORAU if you have many models with clear per-region dominance
-        └── Avoid KNORAE unless neighborhoods are very clean — it's too aggressive
-```
-
-**Why KNORAU/KNORAE underperform on regression:** These algorithms apply a binary competence criterion per neighbor (above/below threshold). After per-neighbor normalization, the best model always maps to 1.0 and the worst to 0.0 — regardless of the actual gap between them. A model that is 70% worse than the best can score 0.52 after normalization and earn equal votes. Setting `threshold=1.0` partially recovers the oracle criterion, but the fundamental mismatch between binary voting and continuous error remains.
+despy caches all model predictions on the validation set at fit time and reads
+from that matrix at inference. DESlib re-queries each model per neighbour at
+inference time. The gap grows with pool size and number of classes.
 
 ---
 
-## Extending the library
+## Pool design
 
-### Custom metric
+DES amplifies whatever diversity already exists in the pool. A poor pool
+produces poor routing regardless of the algorithm.
 
-Any callable with signature `(y_true, y_pred) -> float` works:
+**What works:** models with genuinely different inductive biases. A good
+starting point is KNN + Random Forest + Gradient Boosting + SVM-RBF + MLP.
+Each wins in a different region of most feature spaces.
 
-```python
-import numpy as np
+**What doesn't:** multiple models from the same family (e.g. Random Forest +
+Extra Trees). They learn nearly identical decision boundaries, so routing
+between them adds noise without signal. Pick one representative per family.
 
-def huber(y_true, y_pred, delta=1.0):
-    r = abs(y_true - y_pred)
-    return r if r <= delta else delta * r - 0.5 * delta ** 2
+**Checking pool quality:** if the best DES result is close to or worse than
+best single, the pool likely lacks diversity. The oracle accuracy (best model
+per sample in hindsight) sets the theoretical ceiling — if oracle ≈ best
+single, there is nothing for routing to find.
 
-router = KNNDWS(task='regression', metric=huber, mode='min', k=20)
-```
+---
 
-### Custom neighbor finder
+## Comparison with DESlib
 
-Subclass `NeighborFinder` from `neighbors.py` and implement `fit(X)` and `kneighbors(X, k=None)`, then pass it via `preset='custom'`:
+[DESlib](https://github.com/scikit-learn-contrib/DESlib) is a mature
+scikit-learn-compatible DES library. The main differences:
 
-```python
-router = KNNDWS(
-    task='regression', metric='mae', mode='min', k=20,
-    preset='custom', finder='knn',   # or swap in your own finder via _config.make_finder
-)
-```
+- **Framework**: DESlib requires sklearn-compatible estimators with `predict()`
+  and `predict_proba()` methods. despy accepts prediction arrays from any source
+  — PyTorch, JAX, Keras, or custom models need no wrappers.
+- **Regression**: DESlib has no regression support. despy supports it natively
+  with clean wins on all three benchmark datasets.
+- **Speed**: despy is 10–25× faster at inference. despy caches predictions at
+  fit time; DESlib calls each model live per neighbour at inference time.
+- **Accuracy**: comparable on most classification datasets. despy edges DESlib
+  on Pendigits; DESlib edges despy on MNIST by ~0.3%, attributable to a
+  hard vs soft voting difference in the KNORA implementation.
 
-### New algorithm
+---
 
-Subclass `KNNBase` from `base/knnbase.py`, implement `fit()` (call `prep_fit_inputs` then `super().fit()`) and `predict()`. The score matrix `self.matrix` is always shape `(n_val, n_models)` with higher-is-better scores. See `des/knndws.py` as the reference implementation.
+## Contributing
+
+Issues and PRs welcome.
