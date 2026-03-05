@@ -51,6 +51,7 @@ pip install hnswlib     # HNSW (best for high-dimensional data)
 ## Dependencies
 
 Python (>= 3.9)
+
 NumPy (>= 1.21)
 
 ---
