@@ -72,7 +72,7 @@ models = {"rf": rf, "xgb": xgb, "mlp": mlp}
 val_preds = {name: m.predict_proba(X_val) for name, m in models.items()}
 
 # 3. Fit the router
-router = KNORAU(task="classification", metric="Accuracy", mode="min", k=20)
+router = KNORAU(task="classification", metric="accuracy", mode="max", k=20)
 router.fit(X_val, y_val, val_preds)
 
 # 4. Route test samples
@@ -206,7 +206,7 @@ heavily by time-of-day pattern, so equal-weight blending is actively harmful.
 | MNIST Digits (sklearn) | 96.83% | +0.66% | **+0.83%** (KNORA-E) |
 | Pendigits (OpenML) | 99.02% | +0.25% | **+0.32%** (KNORA-E) |
 
-despy beats best single and simple averaging on every classification dataset across all 10 seeds.
+despy beats or matches best single and simple averaging on every classification dataset across all 10 seeds.
 
 ### Speed (mean ms fit + predict, 10 seeds)
 
