@@ -127,7 +127,7 @@ despy supports three Approximate Nearest Neighbour backends plus exact search:
 
 | Preset | Backend | Install | Notes |
 |---|---|---|---|
-| `exact` | sklearn KNN | — | Exact, no extra deps |
+| `exact` | sklearn KNN |  `scikit-learn` | Exact, no extra deps |
 | `balanced` | FAISS IVF | `faiss-cpu` | ~98% recall, good default |
 | `fast` | FAISS IVF | `faiss-cpu` | ~95% recall, faster queries |
 | `turbo` | FAISS flat | `faiss-cpu` | Exact via FAISS, GPU-friendly |
