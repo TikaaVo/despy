@@ -1,6 +1,6 @@
 # despy
 
-despy is a flexible, light, and easy-to-use ensembling library that implements
+[despy](https://TikaaVo.github.io/despy/) is a flexible, light, and easy-to-use ensembling library that implements
 Dynamic Ensemble Selection (DES) algorithms for ensembling multiple ML models
 on a singular dataset. 
 
