@@ -58,7 +58,7 @@ NumPy (>= 1.21)
 
 ## Quick start
 
-Full explanation of the algorithms, syntax, and parameters is available in the documentation.
+Full explanation of the algorithms, syntax, and parameters is available in the [documentation](https://TikaaVo.github.io/despy/).
 
 ```python
 from despy.des.knorau  import KNORAU
@@ -199,12 +199,12 @@ heavily by time-of-day pattern, so equal-weight blending is actively harmful.
 
 % shown as delta vs Best Single. 10-seed mean.
 
-| Dataset | Best Single | Simple Avg | despy best |
-|---|---|---|---|
-| Waveform (OpenML) | 84.94% | +0.40% | **+0.40%** (KNORA-U/IU) |
-| Satimage (OpenML) | 91.34% | +0.15% | **+0.19%** (KNORA-IU) |
-| MNIST Digits (sklearn) | 96.83% | +0.66% | **+0.83%** (KNORA-E) |
-| Pendigits (OpenML) | 99.02% | +0.25% | **+0.32%** (KNORA-E) |
+| Dataset | Best Single | Simple Avg | despy best              |
+|---|---|------------|-------------------------|
+| Waveform (OpenML) | 84.94% | +0.40%     | **+0.40%** (KNORA-U/IU) |
+| Satimage (OpenML) | 91.34% | **+0.15%** | **+0.15%** (KNORA-IU)   |
+| MNIST Digits (sklearn) | 96.83% | +0.66%     | **+0.83%** (KNORA-E)    |
+| Pendigits (OpenML) | 99.02% | +0.25%     | **+0.32%** (KNORA-E)    |
 
 despy beats or matches best single and simple averaging on every classification dataset across all 10 seeds.
 

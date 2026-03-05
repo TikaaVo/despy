@@ -12,5 +12,9 @@ nav:
     - KNORA-E: algorithms/knorae.md
     - KNORA-IU: algorithms/knoraiu.md
     - OLA: algorithms/ola.md
-  - ANN Backends: backends.md
+  - Backends:
+    - KNN: backends/knn.md
+    - FAISS: backends/faiss.md
+    - Annoy: backends/annoy.md
+    - HNSW: backends/hnsw.md
   - Benchmark: benchmark.md
