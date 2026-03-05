@@ -1,0 +1,1882 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://TikaaVo.github.io/despy/benchmark/">
+      
+      
+        <link rel="prev" href="../backends/hnsw/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Benchmark - despy</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#benchmark" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="despy" class="md-header__button md-logo" aria-label="despy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            despy
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Benchmark
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/TikaaVo/despy" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="despy" class="md-nav__button md-logo" aria-label="despy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    despy
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/TikaaVo/despy" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Algorithms
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Algorithms
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../algorithms/knndws/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    KNN-DWS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../algorithms/knorau/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    KNORA-U
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../algorithms/knorae/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    KNORA-E
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../algorithms/knoraiu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    KNORA-IU
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../algorithms/ola/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OLA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backends
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Backends
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backends/knn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    KNN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backends/faiss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAISS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backends/annoy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Annoy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backends/hnsw/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HNSW
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmark
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#methodology" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Methodology
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pool
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Datasets
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Datasets">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#california-housing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        California Housing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bike-sharing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bike Sharing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#abalone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Abalone
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#waveform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Waveform
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#satimage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Satimage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mnist-digits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MNIST Digits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pendigits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pendigits
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#regression-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regression results
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classification-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classification results
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Classification results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#waveform_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Waveform
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#satimage_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Satimage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mnist-digits_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MNIST Digits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pendigits_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pendigits
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#timing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Timing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#despy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        despy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deslib-classification-datasets-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DESlib (classification datasets only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#methodology" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Methodology
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pool
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Datasets
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Datasets">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#california-housing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        California Housing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bike-sharing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bike Sharing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#abalone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Abalone
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#waveform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Waveform
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#satimage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Satimage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mnist-digits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MNIST Digits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pendigits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pendigits
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#regression-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regression results
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classification-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classification results
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Classification results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#waveform_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Waveform
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#satimage_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Satimage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mnist-digits_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MNIST Digits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pendigits_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pendigits
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#timing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Timing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#despy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        despy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deslib-classification-datasets-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DESlib (classification datasets only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="benchmark">Benchmark</h1>
+<p>All results are from a 10-seed benchmark (seeds 0–9) on standard datasets. Each seed
+produces a different random train/validation/test split, and results are averaged across
+all 10 seeds to reduce variance from any single split.</p>
+<hr />
+<h2 id="methodology">Methodology</h2>
+<p><strong>Split:</strong> Each dataset is split into train, validation, and test sets. Models are trained
+on the train set, the DES router is fitted on the validation set, and it is evaluated on the test set.</p>
+<p><strong>Best Single</strong> is the best individual model from the pool, selected by validation
+set performance. It represents the baseline without any ensembling.</p>
+<p><strong>Simple Average</strong> is a uniform blend of all five models with no fitting or
+tuning. It represents the simplest possible ensemble baseline.</p>
+<p>All despy algorithms use <code>preset="balanced"</code> (FAISS IVF) and <code>k=20</code>.</p>
+<hr />
+<h2 id="pool">Pool</h2>
+<p>The same five-model pool is used across all datasets:</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>K-Nearest Neighbors</td>
+</tr>
+<tr>
+<td>Random Forest</td>
+</tr>
+<tr>
+<td>Hist. Gradient Boosting</td>
+</tr>
+<tr>
+<td>SVM-RBF (C=2)</td>
+</tr>
+<tr>
+<td>MLP</td>
+</tr>
+</tbody>
+</table>
+<p>These five were chosen for having different inductive biases and architectures, which is the kind of scenario that
+DES would be used in.</p>
+<hr />
+<h2 id="datasets">Datasets</h2>
+<h3 id="california-housing">California Housing</h3>
+<p><strong>Source:</strong> sklearn built-in. <strong>Size:</strong> 20,640 samples, 8 features.</p>
+<p>Predict median house value from census block features.</p>
+<h3 id="bike-sharing">Bike Sharing</h3>
+<p><strong>Source:</strong> <a href="https://www.openml.org/d/42712">OpenML 42712</a>. <strong>Size:</strong> 17,379 samples, 12 features.</p>
+<p>Predict hourly bike rental counts from weather and time features.</p>
+<h3 id="abalone">Abalone</h3>
+<p><strong>Source:</strong> <a href="https://www.openml.org/d/183">OpenML 183</a>. <strong>Size:</strong> 4,177 samples, 8 features.</p>
+<p>Predict abalone age from physical measurements.</p>
+<h3 id="waveform">Waveform</h3>
+<p><strong>Source:</strong> <a href="https://www.openml.org/d/60">OpenML 60</a>. <strong>Size:</strong> 5,000 samples, 40 features.</p>
+<p>Three-class classification of artificially constructed waveforms with deliberate class
+overlap.</p>
+<h3 id="satimage">Satimage</h3>
+<p><strong>Source:</strong> <a href="https://www.openml.org/d/182">OpenML 182</a>. <strong>Size:</strong> 6,435 samples, 36 features.</p>
+<p>Six-class land-cover classification from satellite pixel data.</p>
+<h3 id="mnist-digits">MNIST Digits</h3>
+<p><strong>Source:</strong> sklearn built-in. <strong>Size:</strong> 1,797 samples, 64 features (8×8 pixel images).</p>
+<p>Ten-class handwritten digit classification.</p>
+<h3 id="pendigits">Pendigits</h3>
+<p><strong>Source:</strong> <a href="https://www.openml.org/d/32">OpenML 32</a>. <strong>Size:</strong> 10,992 samples, 16 features.</p>
+<p>Ten-class classification of handwritten digits from pen stroke trajectories.</p>
+<hr />
+<h2 id="regression-results">Regression results</h2>
+<p>MAE, lower is better. % shown as delta vs Best Single. 10-seed mean ± std.</p>
+<table>
+<thead>
+<tr>
+<th>Dataset</th>
+<th>Best Single</th>
+<th>Simple Avg</th>
+<th>KNN-DWS</th>
+<th>OLA</th>
+<th>KNORA-U</th>
+<th>KNORA-E</th>
+<th>KNORA-IU</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>California Housing</td>
+<td>0.3370 ± 0.005</td>
+<td>+2.0%</td>
+<td><strong>−3.2%</strong></td>
+<td>−2.4%</td>
+<td>+0.5%</td>
+<td>+5.1%</td>
+<td>+0.4%</td>
+</tr>
+<tr>
+<td>Bike Sharing</td>
+<td>31.02 ± 0.55</td>
+<td>+32.8%</td>
+<td><strong>−0.4%</strong></td>
+<td>+1.1%</td>
+<td>+12.8%</td>
+<td>+19.6%</td>
+<td>+11.9%</td>
+</tr>
+<tr>
+<td>Abalone</td>
+<td>1.5479 ± 0.026</td>
+<td>−1.5%</td>
+<td>−0.2%</td>
+<td>+0.4%</td>
+<td><strong>−1.5%</strong></td>
+<td>+1.7%</td>
+<td>−1.5%</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p>KNORA variants are designed for classification, which explains the poor performance
+on regression datasets; An exception occurs in Abalone, because ring amounts are whole numbers, usually 0-29.</p>
+<h2 id="classification-results">Classification results</h2>
+<p>Accuracy, higher is better. % shown as delta vs Best Single. 10-seed mean ± std.
+Classification datasets include a comparison against <a href="https://github.com/scikit-learn-contrib/DESlib">DESlib</a>,
+a mature sklearn-compatible DES library.</p>
+<h3 id="waveform_1">Waveform</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Mean</th>
+<th>Std</th>
+<th>vs Best Single</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Best Single</td>
+<td>84.94%</td>
+<td>0.69%</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Simple Average</td>
+<td>85.28%</td>
+<td>0.72%</td>
+<td>+0.40%</td>
+</tr>
+<tr>
+<td>despy KNN-DWS</td>
+<td>84.66%</td>
+<td>0.88%</td>
+<td>−0.33%</td>
+</tr>
+<tr>
+<td>despy OLA</td>
+<td>84.28%</td>
+<td>1.08%</td>
+<td>−0.78%</td>
+</tr>
+<tr>
+<td>despy KNORA-U</td>
+<td>85.25%</td>
+<td>0.76%</td>
+<td>+0.36%</td>
+</tr>
+<tr>
+<td>despy KNORA-E</td>
+<td>83.51%</td>
+<td>1.04%</td>
+<td>−1.68%</td>
+</tr>
+<tr>
+<td>despy KNORA-IU</td>
+<td>85.25%</td>
+<td>0.76%</td>
+<td>+0.36%</td>
+</tr>
+<tr>
+<td>DESlib KNORA-U</td>
+<td>85.12%</td>
+<td>0.89%</td>
+<td>+0.21%</td>
+</tr>
+<tr>
+<td>DESlib KNORA-E</td>
+<td>83.78%</td>
+<td>1.01%</td>
+<td>−1.37%</td>
+</tr>
+<tr>
+<td>DESlib OLA</td>
+<td>83.27%</td>
+<td>1.05%</td>
+<td>−1.97%</td>
+</tr>
+<tr>
+<td>DESlib META-DES</td>
+<td>84.66%</td>
+<td>0.95%</td>
+<td>−0.33%</td>
+</tr>
+<tr>
+<td>DESlib KNOP</td>
+<td><strong>85.29%</strong></td>
+<td>0.82%</td>
+<td><strong>+0.41%</strong></td>
+</tr>
+<tr>
+<td>DESlib DESP</td>
+<td>84.96%</td>
+<td>0.88%</td>
+<td>+0.02%</td>
+</tr>
+<tr>
+<td>DESlib DESKNN</td>
+<td>83.75%</td>
+<td>0.70%</td>
+<td>−1.40%</td>
+</tr>
+</tbody>
+</table>
+<p>DESlib achieves a best mean score of 85.29%; despy achieves a best mean score of 85.25%.</p>
+<h3 id="satimage_1">Satimage</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Mean</th>
+<th>Std</th>
+<th>vs Best Single</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Best Single</td>
+<td>91.34%</td>
+<td>0.68%</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Simple Average</td>
+<td>91.48%</td>
+<td>0.60%</td>
+<td>+0.15%</td>
+</tr>
+<tr>
+<td>despy KNN-DWS</td>
+<td>91.28%</td>
+<td>0.66%</td>
+<td>−0.06%</td>
+</tr>
+<tr>
+<td>despy OLA</td>
+<td>90.99%</td>
+<td>0.63%</td>
+<td>−0.38%</td>
+</tr>
+<tr>
+<td>despy KNORA-U</td>
+<td>91.47%</td>
+<td>0.57%</td>
+<td>+0.14%</td>
+</tr>
+<tr>
+<td>despy KNORA-E</td>
+<td>91.31%</td>
+<td>0.64%</td>
+<td>−0.03%</td>
+</tr>
+<tr>
+<td>despy KNORA-IU</td>
+<td>91.46%</td>
+<td>0.56%</td>
+<td>+0.14%</td>
+</tr>
+<tr>
+<td>DESlib KNORA-U</td>
+<td>91.46%</td>
+<td>0.63%</td>
+<td>+0.14%</td>
+</tr>
+<tr>
+<td>DESlib KNORA-E</td>
+<td>91.32%</td>
+<td>0.64%</td>
+<td>−0.02%</td>
+</tr>
+<tr>
+<td>DESlib OLA</td>
+<td>91.03%</td>
+<td>0.71%</td>
+<td>−0.34%</td>
+</tr>
+<tr>
+<td>DESlib META-DES</td>
+<td>91.45%</td>
+<td>0.40%</td>
+<td>+0.13%</td>
+</tr>
+<tr>
+<td>DESlib KNOP</td>
+<td><strong>91.55%</strong></td>
+<td>0.43%</td>
+<td><strong>+0.23%</strong></td>
+</tr>
+<tr>
+<td>DESlib DESP</td>
+<td>91.46%</td>
+<td>0.45%</td>
+<td>+0.14%</td>
+</tr>
+<tr>
+<td>DESlib DESKNN</td>
+<td>91.23%</td>
+<td>0.50%</td>
+<td>−0.12%</td>
+</tr>
+</tbody>
+</table>
+<p>DESlib achieves a best mean score of 91.55%; despy achieves a best mean score of 91.47%.</p>
+<h3 id="mnist-digits_1">MNIST Digits</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Mean</th>
+<th>Std</th>
+<th>vs Best Single</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Best Single</td>
+<td>96.83%</td>
+<td>1.00%</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Simple Average</td>
+<td>97.47%</td>
+<td>0.47%</td>
+<td>+0.66%</td>
+</tr>
+<tr>
+<td>despy KNN-DWS</td>
+<td>97.47%</td>
+<td>0.83%</td>
+<td>+0.66%</td>
+</tr>
+<tr>
+<td>despy OLA</td>
+<td>96.97%</td>
+<td>0.81%</td>
+<td>+0.14%</td>
+</tr>
+<tr>
+<td>despy KNORA-U</td>
+<td>97.53%</td>
+<td>0.40%</td>
+<td>+0.72%</td>
+</tr>
+<tr>
+<td>despy KNORA-E</td>
+<td>97.64%</td>
+<td>0.43%</td>
+<td>+0.83%</td>
+</tr>
+<tr>
+<td>despy KNORA-IU</td>
+<td>97.53%</td>
+<td>0.40%</td>
+<td>+0.72%</td>
+</tr>
+<tr>
+<td>DESlib KNORA-U</td>
+<td><strong>97.92%</strong></td>
+<td>0.26%</td>
+<td><strong>+1.12%</strong></td>
+</tr>
+<tr>
+<td>DESlib KNORA-E</td>
+<td>97.75%</td>
+<td>0.26%</td>
+<td>+0.95%</td>
+</tr>
+<tr>
+<td>DESlib OLA</td>
+<td>96.78%</td>
+<td>0.64%</td>
+<td>−0.06%</td>
+</tr>
+<tr>
+<td>DESlib META-DES</td>
+<td>97.67%</td>
+<td>0.43%</td>
+<td>+0.86%</td>
+</tr>
+<tr>
+<td>DESlib KNOP</td>
+<td>97.78%</td>
+<td>0.39%</td>
+<td>+0.98%</td>
+</tr>
+<tr>
+<td>DESlib DESP</td>
+<td>97.81%</td>
+<td>0.36%</td>
+<td>+1.00%</td>
+</tr>
+<tr>
+<td>DESlib DESKNN</td>
+<td>96.78%</td>
+<td>0.57%</td>
+<td>−0.06%</td>
+</tr>
+</tbody>
+</table>
+<p>DESlib achieves a best mean score of 97.92%; despy achieves a best mean score of 91.64%.</p>
+<h3 id="pendigits_1">Pendigits</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Mean</th>
+<th>Std</th>
+<th>vs Best Single</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Best Single</td>
+<td>99.02%</td>
+<td>0.30%</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Simple Average</td>
+<td>99.27%</td>
+<td>0.11%</td>
+<td>+0.25%</td>
+</tr>
+<tr>
+<td>despy KNN-DWS</td>
+<td>99.28%</td>
+<td>0.11%</td>
+<td>+0.26%</td>
+</tr>
+<tr>
+<td>despy OLA</td>
+<td>99.21%</td>
+<td>0.20%</td>
+<td>+0.19%</td>
+</tr>
+<tr>
+<td>despy KNORA-U</td>
+<td>99.27%</td>
+<td>0.12%</td>
+<td>+0.25%</td>
+</tr>
+<tr>
+<td>despy KNORA-E</td>
+<td><strong>99.34%</strong></td>
+<td>0.10%</td>
+<td><strong>+0.32%</strong></td>
+</tr>
+<tr>
+<td>despy KNORA-IU</td>
+<td>99.27%</td>
+<td>0.12%</td>
+<td>+0.25%</td>
+</tr>
+<tr>
+<td>DESlib KNORA-U</td>
+<td>99.29%</td>
+<td>0.14%</td>
+<td>+0.27%</td>
+</tr>
+<tr>
+<td>DESlib KNORA-E</td>
+<td>99.32%</td>
+<td>0.13%</td>
+<td>+0.30%</td>
+</tr>
+<tr>
+<td>DESlib OLA</td>
+<td>99.11%</td>
+<td>0.24%</td>
+<td>+0.09%</td>
+</tr>
+<tr>
+<td>DESlib META-DES</td>
+<td>99.32%</td>
+<td>0.08%</td>
+<td>+0.30%</td>
+</tr>
+<tr>
+<td>DESlib KNOP</td>
+<td>99.30%</td>
+<td>0.13%</td>
+<td>+0.28%</td>
+</tr>
+<tr>
+<td>DESlib DESP</td>
+<td>99.30%</td>
+<td>0.11%</td>
+<td>+0.28%</td>
+</tr>
+<tr>
+<td>DESlib DESKNN</td>
+<td>99.14%</td>
+<td>0.15%</td>
+<td>+0.12%</td>
+</tr>
+</tbody>
+</table>
+<p>DESlib achieves a best mean score of 99.32%; despy achieves a best mean score of 99.34.</p>
+<hr />
+<h2 id="timing">Timing</h2>
+<p>Mean fit + predict time in milliseconds, averaged across 10 seeds. Fit is measured once
+per dataset per seed; predict is measured over the full test set.</p>
+<p>despy caches all model predictions on the validation set at fit time and reads from that
+matrix at inference, so no model is called at predict time. This is the primary reason for
+the speed advantage over DESlib, which calls each model live per neighbour at inference.</p>
+<h3 id="despy">despy</h3>
+<table>
+<thead>
+<tr>
+<th>Dataset</th>
+<th>KNN-DWS</th>
+<th>OLA</th>
+<th>KNORA-U</th>
+<th>KNORA-E</th>
+<th>KNORA-IU</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>California Housing</td>
+<td>22.6 ms</td>
+<td>21.7 ms</td>
+<td>27.6 ms</td>
+<td>33.0 ms</td>
+<td>26.9 ms</td>
+</tr>
+<tr>
+<td>Bike Sharing</td>
+<td>18.1 ms</td>
+<td>17.4 ms</td>
+<td>20.2 ms</td>
+<td>27.0 ms</td>
+<td>21.6 ms</td>
+</tr>
+<tr>
+<td>Abalone</td>
+<td>4.7 ms</td>
+<td>4.7 ms</td>
+<td>5.1 ms</td>
+<td>6.8 ms</td>
+<td>5.2 ms</td>
+</tr>
+<tr>
+<td>Waveform</td>
+<td>9.7 ms</td>
+<td>9.2 ms</td>
+<td>9.4 ms</td>
+<td>12.1 ms</td>
+<td>9.9 ms</td>
+</tr>
+<tr>
+<td>Satimage</td>
+<td>11.7 ms</td>
+<td>11.4 ms</td>
+<td>11.4 ms</td>
+<td>14.5 ms</td>
+<td>12.1 ms</td>
+</tr>
+<tr>
+<td>MNIST Digits</td>
+<td>4.4 ms</td>
+<td>4.0 ms</td>
+<td>3.9 ms</td>
+<td>3.9 ms</td>
+<td>3.8 ms</td>
+</tr>
+<tr>
+<td>Pendigits</td>
+<td>19.4 ms</td>
+<td>19.1 ms</td>
+<td>19.5 ms</td>
+<td>22.7 ms</td>
+<td>21.1 ms</td>
+</tr>
+</tbody>
+</table>
+<h3 id="deslib-classification-datasets-only">DESlib (classification datasets only)</h3>
+<table>
+<thead>
+<tr>
+<th>Dataset</th>
+<th>KNORA-U</th>
+<th>KNORA-E</th>
+<th>OLA</th>
+<th>META-DES</th>
+<th>KNOP</th>
+<th>DESP</th>
+<th>DESKNN</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Waveform</td>
+<td>71.0 ms</td>
+<td>71.0 ms</td>
+<td>69.5 ms</td>
+<td>143.0 ms</td>
+<td>120.0 ms</td>
+<td>71.5 ms</td>
+<td>78.4 ms</td>
+</tr>
+<tr>
+<td>Satimage</td>
+<td>107.6 ms</td>
+<td>106.5 ms</td>
+<td>106.2 ms</td>
+<td>191.0 ms</td>
+<td>162.1 ms</td>
+<td>111.2 ms</td>
+<td>111.7 ms</td>
+</tr>
+<tr>
+<td>MNIST Digits</td>
+<td>102.2 ms</td>
+<td>98.9 ms</td>
+<td>101.8 ms</td>
+<td>158.3 ms</td>
+<td>155.3 ms</td>
+<td>99.2 ms</td>
+<td>103.0 ms</td>
+</tr>
+<tr>
+<td>Pendigits</td>
+<td>201.4 ms</td>
+<td>212.6 ms</td>
+<td>201.8 ms</td>
+<td>324.7 ms</td>
+<td>306.7 ms</td>
+<td>200.1 ms</td>
+<td>201.3 ms</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
