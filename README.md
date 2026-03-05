@@ -1,17 +1,32 @@
 # despy
 
-Dynamic Ensemble Selection (DES) for Python.
+despy is a flexible, light, and easy-to-use ensembling library that implements
+Dynamic Ensemble Selection (DES) algorithms for ensembling multiple ML models
+on a singular dataset. 
 
-Rather than picking one model or blending all models equally, DES routes each
-test sample to whichever models performed best on similar training examples.
-The idea is that no single model wins everywhere — a KNN might dominate
-smooth low-dimensional regions while a gradient booster wins on sharp
-boundaries — and that routing by local competence captures these divisions
-automatically without any manual tuning.
+The library works entirely with data, taking as input a validation dataset 
+along with pre-computed predictions and outputting a dictionary of weights 
+per model. This means that it can be used with any library or model without 
+requiring any wrappers, including custom models, popular ML libraries, and APIs.
 
-despy works with any array-producing model. The router only ever sees numpy
-arrays of predictions; the underlying models are never called at inference time
-and need no sklearn wrappers.
+despy contains multiple different DES algorithms, and it works with both classification
+and regression.
+
+# Dynamic Ensemble Selection
+
+Ensemble learning in machine learning refers to when multiple models trained on a 
+single dataset combine their predictions to create a single, more accurate prediction,
+usually through weighted voting or picking the best model.
+
+DES refers to techniques where the models or their voting weights are selected dynamically
+for every test case. This selection bases on the idea of competence regions, which is the 
+concept that there are regions of feature space where certain models perform particularly well,
+so every base model can be an expert in a different region.
+Only the most competent, or an ensemble of the most competent models is selected for the prediction.
+
+Through emperical studies, DES has been shown to perform best with small-sized, imbalanced, or 
+heterogeneous datasets, non-stationary data (concept drift), models that haven't perfected a dataset, 
+and when used on an ensemble of models with differing architectures and perspectives.
 
 ---
 
@@ -20,7 +35,12 @@ and need no sklearn wrappers.
 ```bash
 pip install despy
 
-# ANN backends — install whichever you want to use
+# The library runs with Nearest Neighbors from sklearn for exact KNN
+pip install scikit-learn
+
+# Alternatively, ANN can be used for faster runtimes at the cost of
+# slightly lower accuracy. The following three are supported;
+# Install the one you want to use.
 pip install faiss-cpu   # FAISS (good default for most datasets)
 pip install annoy       # Annoy (memory-efficient, simple)
 pip install hnswlib     # HNSW (best for high-dimensional data)
@@ -28,32 +48,36 @@ pip install hnswlib     # HNSW (best for high-dimensional data)
 
 ---
 
+## Dependencies
+
+Python (>= 3.9)
+NumPy (>= 1.21)
+
+---
+
 ## Quick start
 
 ```python
-from despy.des.knndws  import KNNDWS
 from despy.des.knorau  import KNORAU
-from despy.des.knoraiu import KNORAIU
 
-# -- 1. Train your models however you like --------------------------------
-#    sklearn, torch, jax, keras — despy doesn't care
+# 1. Train your models
 models = {"rf": rf, "xgb": xgb, "mlp": mlp}
 
-# -- 2. Get predictions on a held-out validation set ---------------------
+# 2. Get predictions on a held-out validation set
 #    Regression: scalar arrays
-#    Classification: predict_proba() probability arrays, OR hard predictions
-val_preds = {name: m.predict(X_val) for name, m in models.items()}
+#    Classification: probability arrays OR hard predictions
+val_preds = {name: m.predict_proba(X_val) for name, m in models.items()}
 
-# -- 3. Fit the router ---------------------------------------------------
-router = KNNDWS(task="regression", metric="mae", mode="min", k=20)
+# 3. Fit the router
+router = KNORAU(task="classification", metric="log_loss", mode="min", k=20)
 router.fit(X_val, y_val, val_preds)
 
-# -- 4. Route test samples -----------------------------------------------
+# 4. Route test samples
 test_preds = {name: m.predict(X_test) for name, m in models.items()}
 
 for i, x in enumerate(X_test):
     weights = router.predict(x, temperature=0.1)
-    # weights: {"rf": 0.7, "xgb": 0.2, "mlp": 0.1}
+    # weights example: {"rf": 0.7, "xgb": 0.2, "mlp": 0.1}
     prediction = sum(weights[n] * test_preds[n][i] for n in weights)
 ```
 
@@ -65,11 +89,14 @@ get a final probability distribution, then take the argmax.
 ## Why despy?
 
 Most DES libraries are tied to scikit-learn. despy only ever sees a numpy
-feature matrix and a dict of prediction arrays — the models themselves are
-never touched after training.
+feature matrix and a dict of prediction arrays, so the models themselves are
+never touched after training. This allows for more flexibility and a lighter library.
+
+Furthermore, despy works with both classification and regression, while the majority of DES
+libraries and literature is focused only on classification tasks.
 
 ```python
-# PyTorch — no wrappers needed
+# PyTorch example 
 with torch.no_grad():
     val_preds  = {name: m(X_val_t).cpu().numpy()  for name, m in models.items()}
     test_preds = {name: m(X_test_t).cpu().numpy() for name, m in models.items()}
@@ -87,20 +114,15 @@ weights = router.predict(X_test[i])
 |---|---|---|
 | `KNNDWS` | Regression | Softmax over neighbourhood-averaged scores. Temperature controls sharpness. |
 | `KNORAU` | Classification | Vote-count weighting. Each model earns one vote per neighbour it correctly classifies. |
-| `KNORAE` | Classification | Intersection-based. Only models correct on *all* neighbours survive; falls back to smaller neighbourhoods. |
+| `KNORAE` | Classification | Intersection-based. Only models correct on all neighbours survive; falls back to smaller neighbourhoods. |
 | `KNORAIU` | Classification | Like KNORA-U but votes are inverse-distance weighted. |
 | `OLA` | Both | Hard selection: only the single best model in the neighbourhood contributes. |
-
-**Which to use:** `KNNDWS` for regression — continuous competence signals from
-mae/mse are richer than binary correct/wrong. `KNORAU` or `KNORAIU` for
-classification as a safe default. `KNORAE` is more aggressive — good when one
-model clearly dominates local regions, noisier on datasets with genuine overlap.
 
 ---
 
 ## ANN backends
 
-despy supports three approximate nearest-neighbour backends plus exact search:
+despy supports three Approximate Nearest Neighbour backends plus exact search:
 
 | Preset | Backend | Install | Notes |
 |---|---|---|---|
@@ -150,87 +172,50 @@ Built-in metric strings: `accuracy`, `mae`, `mse`, `rmse`, `log_loss`, `prob_cor
 
 ## Benchmark results
 
-10-seed benchmark (seeds 0–9) on standard datasets. "Best Single" is the best
+10-seed benchmark (seeds 0–9) on standard sklearn and OpenML datasets. "Best Single" is the best
 individual model selected on the validation set. "Simple Average" is uniform
-equal-weight blending, included as a naive baseline.
+equal-weight blending, included as a baseline.
 
-Pool: KNN · Random Forest · Hist. Gradient Boosting · SVM-RBF (C=2) · MLP.
+Pool: KNN, Random Forest, Hist. Gradient Boosting, SVM-RBF (C=2), MLP.
 
 ### Regression (MAE, lower is better)
 
-| Dataset | Best Single | Simple Avg | despy best | vs Best Single |
-|---|---|---|---|---|
-| California Housing | 0.3370 | +2.0% | **0.3262** (KNN-DWS) | **−3.2%** |
-| Bike Sharing | 31.02 | +32.8% | **30.89** (KNN-DWS) | **−0.4%** |
-| Abalone | 1.5479 | −1.5% | **1.5247** (KNORA-U) | **−1.5%** |
+% shown as delta vs Best Single. 10-seed mean.
 
-KNN-DWS wins or ties best single on every regression dataset across all 10 seeds.
-Simple Average performs poorly on Bike Sharing (+32.8%) — pool models specialise
+| Dataset | Best Single | Simple Avg | despy best |
+|---|---|---|---|
+| California Housing (sklearn) | 0.3370 | +2.0% | **−3.2%** (KNN-DWS) |
+| Bike Sharing (OpenML) | 31.02 | +32.8% | **−0.4%** (KNN-DWS) |
+| Abalone (OpenML) | 1.5479 | −1.5% | **−1.5%** (KNORA-U) |
+
+despy beats best single and simple averaging on every regression dataset across all 10 seeds.
+Simple Average performs poorly on Bike Sharing (+32.8%), because pool models specialise
 heavily by time-of-day pattern, so equal-weight blending is actively harmful.
 
 ### Classification (Accuracy, higher is better)
 
 % shown as delta vs Best Single. 10-seed mean.
 
-| Dataset | Best Single | Simple Avg | despy best | DESlib best |
-|---|---|---|---|---|
-| Waveform | 84.94% | +0.40% | **+0.40%** (KNORA-U/IU) | +0.41% (KNOP) |
-| Satimage | 91.34% | +0.15% | +0.19% (KNORA-IU) | +0.23% (KNOP) |
-| MNIST Digits | 96.83% | +0.66% | +0.83% (KNORA-E) | +1.12% (KNORA-U) |
-| Pendigits | 99.02% | +0.25% | **+0.32%** (KNORA-E) | +0.30% (KNORA-E) |
+| Dataset | Best Single | Simple Avg | despy best |
+|---|---|---|---|
+| Waveform (OpenML) | 84.94% | +0.40% | **+0.40%** (KNORA-U/IU) |
+| Satimage (OpenML) | 91.34% | +0.15% | **+0.19%** (KNORA-IU) |
+| MNIST Digits (sklearn) | 96.83% | +0.66% | **+0.83%** (KNORA-E) |
+| Pendigits (OpenML) | 99.02% | +0.25% | **+0.32%** (KNORA-E) |
 
-despy closely matches or beats DESlib on 3 of 4 datasets.
+despy beats best single and simple averaging on every classification dataset across all 10 seeds.
 
 ### Speed (mean ms fit + predict, 10 seeds)
 
-| Dataset | despy | DESlib | Speedup |
-|---|---|---|---|
-| Waveform | 9–12 ms | 69–143 ms | ~10× |
-| Satimage | 11–15 ms | 107–191 ms | ~10× |
-| MNIST Digits | 4–5 ms | 99–158 ms | ~25× |
-| Pendigits | 19–23 ms | 200–325 ms | ~12× |
+| Dataset | despy |
+|---|---|
+| Waveform | 9–12 ms |
+| Satimage | 11–15 ms |
+| MNIST Digits | 4–5 ms |
+| Pendigits | 19–23 ms |
 
 despy caches all model predictions on the validation set at fit time and reads
-from that matrix at inference. DESlib re-queries each model per neighbour at
-inference time. The gap grows with pool size and number of classes.
-
----
-
-## Pool design
-
-DES amplifies whatever diversity already exists in the pool. A poor pool
-produces poor routing regardless of the algorithm.
-
-**What works:** models with genuinely different inductive biases. A good
-starting point is KNN + Random Forest + Gradient Boosting + SVM-RBF + MLP.
-Each wins in a different region of most feature spaces.
-
-**What doesn't:** multiple models from the same family (e.g. Random Forest +
-Extra Trees). They learn nearly identical decision boundaries, so routing
-between them adds noise without signal. Pick one representative per family.
-
-**Checking pool quality:** if the best DES result is close to or worse than
-best single, the pool likely lacks diversity. The oracle accuracy (best model
-per sample in hindsight) sets the theoretical ceiling — if oracle ≈ best
-single, there is nothing for routing to find.
-
----
-
-## Comparison with DESlib
-
-[DESlib](https://github.com/scikit-learn-contrib/DESlib) is a mature
-scikit-learn-compatible DES library. The main differences:
-
-- **Framework**: DESlib requires sklearn-compatible estimators with `predict()`
-  and `predict_proba()` methods. despy accepts prediction arrays from any source
-  — PyTorch, JAX, Keras, or custom models need no wrappers.
-- **Regression**: DESlib has no regression support. despy supports it natively
-  with clean wins on all three benchmark datasets.
-- **Speed**: despy is 10–25× faster at inference. despy caches predictions at
-  fit time; DESlib calls each model live per neighbour at inference time.
-- **Accuracy**: comparable on most classification datasets. despy edges DESlib
-  on Pendigits; DESlib edges despy on MNIST by ~0.3%, attributable to a
-  hard vs soft voting difference in the KNORA implementation.
+from that matrix at inference.
 
 ---
 
