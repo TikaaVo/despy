@@ -183,6 +183,8 @@ Built-in metric strings: `accuracy`, `mae`, `mse`, `rmse`, `log_loss`, `prob_cor
 individual model selected on the validation set. "Simple Average" is uniform
 equal-weight blending, included as a baseline.
 
+It is important to consider that these experiments were run with the default hyperparameters, meaning that
+they could vary greatly with different values, and results could improve with tuning.
 For a more detailed benchmark breakdown, see the [documentation](https://TikaaVo.github.io/despy/).
 To see the full results, see `results.txt` in the `tests` folder.
 
