@@ -8,8 +8,8 @@ It uses soft blending between the top experts in a certain competence region to 
 
 ## When to use
 
-- KNN-DWS-I is currently the general recommendation for regression tasks. It works for classification with confidence scores, 
-but not as well with hard predictions
+- KNN-DWS-I is currently the general recommendation for regression tasks. KNN-DWS-I works best with soft metrics, 
+so it also works for classification with confidence scores, but not as well with hard predictions
 - It performs best when the competence regions and pool are smooth and heterogeneous
 - It performs worst for homogeneous datasets and for classification with hard predictions
 
