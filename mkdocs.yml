@@ -8,6 +8,7 @@ nav:
   - Home: index.md
   - Algorithms:
     - KNN-DWS: algorithms/knndws.md
+    - KNN-DWS-I: algorithms/knndwsi.md
     - KNORA-U: algorithms/knorau.md
     - KNORA-E: algorithms/knorae.md
     - KNORA-IU: algorithms/knoraiu.md
