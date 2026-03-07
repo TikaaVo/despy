@@ -209,6 +209,11 @@ despy algorithms tested: OLA, KNN-DWS, KNORA-U, KNORA-E, KNORA-IU.
 despy beats best single and simple averaging on 3/5 regression datasets. This shows how DES can provide a
 strong boost if used on the right dataset, but it might be counterproductive if used blindly.
 
+KNORA variants are designed for classification, which explains the poor performance
+on regression datasets; However, some exception can occur in certain datasets, either where
+feature space is has hard clusters (like in Concrete Strength) or when the target is discrete
+and classification-like (like in Abalone).
+
 ### Classification (Accuracy, higher is better)
 
 % shown as delta vs Best Single. 10-seed mean.
