@@ -2,24 +2,12 @@
 """
 Dynamic Ensemble Selection -- Multi-Seed Benchmark
 ===================================================
-Runs the full showcase across N random seeds and reports mean +/- std for
-every method on every dataset. This gives a much more reliable picture of
-relative performance than a single seed, especially on smaller datasets like
-Abalone and Diabetes where individual runs have high variance.
-
-Imports run_regression and run_classification from showcase.py, which must be
-in the same directory (or on PYTHONPATH). All algorithm settings (K, temperature,
-thresholds) are read directly from showcase.py so the two files stay in sync.
 
 Usage
 -----
   python benchmark.py              # 10 seeds, all 10 datasets
   python benchmark.py --seeds 30   # 30 seeds (more reliable)
   python benchmark.py --seeds 5 --verbose   # print each individual run too
-
-Runtime (MacBook Air M3, default 10 seeds)
-  ~60-90 min. Datasets are loaded once and reused across all seeds.
-  Use --seeds 5 for a quick ~30 min run.
 """
 
 import argparse
@@ -47,7 +35,7 @@ except ImportError:
     sys.exit(1)
 
 
-# ── Configuration ─────────────────────────────────────────────────────
+# Configuration
 
 DEFAULT_N_SEEDS = 100
 
@@ -72,7 +60,7 @@ DATASETS = [
 ]
 
 
-# ── Data loading ──────────────────────────────────────────────────────
+# Data loading
 
 def load_silently(loader):
     """Call a loader and return its result without printing."""
@@ -86,7 +74,7 @@ def make_cached_loader(data):
     return lambda: data
 
 
-# ── Multi-seed runner ─────────────────────────────────────────────────
+# Multi-seed runner
 
 def run_all_seeds(n_seeds, verbose_runs=False):
     """
@@ -99,7 +87,7 @@ def run_all_seeds(n_seeds, verbose_runs=False):
     """
     seeds = make_seeds(n_seeds)
 
-    # Load datasets once upfront — OpenML has network latency.
+    # Load datasets once.
     print(f"\n  Pre-loading datasets (fetched once, reused across all {n_seeds} seeds)...")
     loaded = {}
     for loader, _, _, label, _, _ in DATASETS:
@@ -121,10 +109,7 @@ def run_all_seeds(n_seeds, verbose_runs=False):
             cached_loader = make_cached_loader(loaded[label])
             print(f"  [{label}]", end='  ', flush=True)
             t0 = time.time()
-            # Always call with verbose=True but suppress stdout — this ensures
-            # DESlib (and any other block gated on verbose) always runs and
-            # populates the returned scores dict. Per-run output is then
-            # re-printed only when --verbose was requested.
+            # Always call with verbose=True
             _buf = io.StringIO()
             with contextlib.redirect_stdout(_buf):
                 result = run_fn(cached_loader, seed=seed, verbose=True, **kwargs)
@@ -135,7 +120,6 @@ def run_all_seeds(n_seeds, verbose_runs=False):
 
             for method, score in scores.items():
                 # Normalize 'Best Single  (Model Name)' → 'Best Single'
-                # so results from different seeds collapse into one row.
                 key = 'Best Single' if method.startswith('Best Single') else method
                 results[label].setdefault(key, []).append(score)
             for method, ms in fit_ms.items():
@@ -146,7 +130,7 @@ def run_all_seeds(n_seeds, verbose_runs=False):
     return results, timing_fit, timing_pred
 
 
-# ── Summary display ───────────────────────────────────────────────────
+# Summary display
 
 def print_summary(results, timing_fit, timing_pred, n_seeds):
     seeds = make_seeds(n_seeds)
@@ -163,7 +147,6 @@ def print_summary(results, timing_fit, timing_pred, n_seeds):
         print(f"\n  {label}  ({metric_name}, {'higher' if higher else 'lower'} is better)")
         print(f"  {'-' * (W - 4)}")
 
-        # "Best Single" is always the first row; use it as the vs-Best reference.
         ref_method = methods[0]
         ref_clean  = vals[ref_method][vals[ref_method] != np.array(None)].astype(float)
         ref_mean   = ref_clean.mean()
@@ -202,7 +185,6 @@ def print_summary(results, timing_fit, timing_pred, n_seeds):
                 print(f"  {method:<44}  {mean:>9.4f}  {std:>8.4f}"
                       f"  {valid.min():>9.4f}  {valid.max():>9.4f}  {d_str:>9}{marker}{miss}")
 
-        # Per-seed breakdown so you can spot outlier seeds at a glance.
         print(f"\n  Per-seed ({metric_name}):")
         seed_hdr = "  " + "".join(f"  seed {s:>2}" for s in seeds)
         print(seed_hdr)
@@ -214,7 +196,7 @@ def print_summary(results, timing_fit, timing_pred, n_seeds):
             row = "".join(_fmt(v, higher) for v in vals[method])
             print(f"  {short:<44}{row}")
 
-        # Timing summary — mean fit + predict ms across seeds
+        # Timing summary
         t_fit  = timing_fit.get(label, {})
         t_pred = timing_pred.get(label, {})
         if t_fit:
@@ -230,7 +212,6 @@ def print_summary(results, timing_fit, timing_pred, n_seeds):
                 print(f"  {lbl:<44}  {fm:>8.1f}  {pm:>9.1f}  {fm+pm:>7.1f}")
 
 
-# ── Entry point ───────────────────────────────────────────────────────
 
 def parse_args():
     p = argparse.ArgumentParser(

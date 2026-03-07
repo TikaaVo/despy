@@ -2,26 +2,9 @@
 """
 deskit Showcase
 ==============
-Benchmarks deskit against DESlib and DESReg across regression and
-classification tasks using a deliberately diverse pool of weaker,
-more opinionated models.
+Pool design
 
-Why deskit is framework-agnostic
-  deskit receives any numeric predictions — numpy arrays, PyTorch tensors, JAX
-  arrays, Keras model outputs — and returns routing weights. It never calls
-  fit() or predict() on your models; it only sees their outputs.
-  DESlib requires sklearn-compatible estimators (fit/predict/predict_proba API)
-  and has no regression support.
-
-Pool design  (both tasks)
-  The key difference from the original benchmark is the pool. The original used
-  strong globally-competitive models (RF, HGB, Extra Trees, etc.) that stay
-  within a few percent of each other everywhere — leaving little for DES routing
-  to gain. This showcase uses deliberately diverse, more opinionated models where
-  each has a clearly different inductive bias and a clear failure mode. DES has
-  genuine signal to exploit.
-
-  Regression pool
+  Regression
     KNN (k=5)         — purely local; wins in dense low-noise regions,
                          fails on sparse or high-dimensional spaces
     Decision Tree     — axis-aligned splits; wins in piecewise-constant regions,
@@ -54,9 +37,6 @@ Classification datasets   (deskit vs DESlib, direct head-to-head)
   Image Segment       OpenML 36,          2,310 samples,  19 features,  7 classes
   Vowel               OpenML 307,           990 samples,  10 features, 11 classes
   Waveform            OpenML 60,          5,000 samples,  40 features,  3 classes
-
-Install:  pip install scikit-learn scipy faiss-cpu deslib DESReg
-Runtime:  ~30-50 min on a modern laptop
 """
 
 import contextlib
@@ -86,10 +66,8 @@ from deskit.des.knoraiu import KNORAIU
 
 warnings.filterwarnings('ignore')
 
-# ── Optional DESlib import ─────────────────────────────────────────────────────
+# Optional DESlib import
 try:
-    # sklearn >= 1.6 removed BaseEstimator._validate_data;
-    # patch it back so DESlib (built against older sklearn) doesn't crash.
     from sklearn.base import BaseEstimator
     if not hasattr(BaseEstimator, '_validate_data'):
         from sklearn.utils.validation import check_array, check_X_y
@@ -112,22 +90,12 @@ try:
 except ImportError:
     DESLIB_AVAILABLE = False
 
-# ── Optional DESReg import ─────────────────────────────────────────────────────
-# DESReg: Dynamic Ensemble Selection for Regression tasks
-# https://github.com/lperezgodoy/DESReg  /  pip install DESReg
-#
-# Architecture note: DESReg bags the pool internally from unfitted regressors
-# and manages the DSEL split itself. This is fundamentally different from deskit,
-# which accepts pre-fitted model outputs and never touches or calls your models.
-# DESReg is sklearn-only; deskit is framework-agnostic.
+# Optional DESReg import
 try:
     from desReg.des.DESRegression import DESRegression as _DESReg
     DESREG_AVAILABLE = True
 except ImportError:
     DESREG_AVAILABLE = False
-
-
-# ── Constants ──────────────────────────────────────────────────────────────────
 
 SEED = 42
 W    = 84      # print width
@@ -165,14 +133,14 @@ _DES_CLASSES = {
     'knora-iu':  KNORAIU,
 }
 
-# DESlib algorithms run in the comparison (7 total: 3 basic + 4 advanced)
+# DESlib algorithms
 DL_METHODS = ['KNORA-U', 'KNORA-E', 'OLA', 'META-DES', 'KNOP', 'DESP', 'DESKNN']
 
-# DESReg modes: DES = dynamic ensemble selection, DSR = dynamic regressor selection
+# DESReg modes
 DR_METHODS = ['DES', 'DSR']
 
 
-# ── Display helpers ────────────────────────────────────────────────────────────
+# Display
 
 def banner():
     dl_status = ('installed — 7 algorithms: KNORA-U/E · OLA · META-DES · KNOP · DESP · DESKNN'
@@ -261,14 +229,11 @@ def show_timing(methods, fit_times, predict_times, n_test):
               f"  {predict_times[m]/n_test:>10.4f}")
 
 
-# ── Preprocessing ──────────────────────────────────────────────────────────────
+# Preprocessing
 
 def preprocess(X_tr, X_val, X_test):
     """
     Impute and StandardScale all splits using training statistics.
-
-    All models and both routing libraries receive identically scaled features,
-    avoiding double-scaling artifacts from Pipeline-internal scalers.
     """
     prep     = Pipeline([('imp', SimpleImputer(strategy='median')),
                          ('sc',  StandardScaler())])
@@ -278,7 +243,7 @@ def preprocess(X_tr, X_val, X_test):
     return X_tr_s, X_val_s, X_test_s
 
 
-# ── Model builders ─────────────────────────────────────────────────────────────
+# Model builders
 
 def build_regressors(seed=SEED):
     """
@@ -329,7 +294,7 @@ def build_classifiers(seed=SEED):
     }
 
 
-# ── Dataset loaders ────────────────────────────────────────────────────────────
+# Dataset loaders
 # Regression
 
 def load_california():
@@ -351,7 +316,6 @@ def load_bike():
 def load_abalone():
     """
     UCI Abalone dataset: predict age (number of rings) from physical measurements.
-    Sex (M/F/I) is one-hot encoded. SimpleImputer handles any missing values.
     """
     print("  Fetching Abalone from OpenML...", end=' ', flush=True)
     import pandas as pd
@@ -364,11 +328,7 @@ def load_abalone():
 
 def load_diabetes_data():
     """
-    sklearn Diabetes dataset: 442 samples, 10 features (age, sex, BMI,
-    blood pressure, six serum measurements), continuous target is disease
-    progression one year after baseline. Small enough that competence regions
-    are meaningful — KNN wins on similar patient profiles, SVR wins near smooth
-    physiological boundaries, Ridge wins where the relationship is additive.
+    sklearn Diabetes dataset: 442 samples, 10 features.
     """
     print("  Loading Diabetes (sklearn built-in)...", end=' ', flush=True)
     X, y = load_diabetes(return_X_y=True)
@@ -378,12 +338,7 @@ def load_diabetes_data():
 
 def load_concrete():
     """
-    Concrete Compressive Strength (OpenML 4353): 1,030 samples, 8 features
-    (cement, blast furnace slag, fly ash, water, superplasticiser, coarse
-    aggregate, fine aggregate, age), target is compressive strength in MPa.
-    Nonlinear ingredient interactions create genuine competence regions —
-    Decision Tree wins on dominant ingredient splits, SVR wins near smooth
-    interaction boundaries, Ridge fails on the nonlinear age-cure relationship.
+    Concrete Compressive Strength (OpenML 4353): 1,030 samples, 8 features.
     """
     print("  Fetching Concrete Strength from OpenML...", end=' ', flush=True)
     d = fetch_openml(data_id=4353, as_frame=True, parser='auto')
@@ -403,10 +358,7 @@ def load_concrete():
 def load_har():
     """
     Human Activity Recognition (OpenML 1478): 10,299 samples of smartphone
-    sensor data (accelerometer + gyroscope), 561 features, 6 activity classes.
-    Static activities (sitting, standing, laying) occupy completely different
-    regions of feature space than dynamic ones (walking, running) — each model
-    family handles a different activity type.
+    sensor data, 561 features, 6 activity classes.
     """
     print("  Fetching HAR from OpenML...", end=' ', flush=True)
     ds = fetch_openml(data_id=1478, as_frame=True, parser='auto')
@@ -419,10 +371,7 @@ def load_har():
 def load_yeast():
     """
     Yeast protein localisation (OpenML 181): 1,484 samples, 8 features,
-    10 classes. Highly multiclass with class imbalance — some classes have
-    fewer than 30 samples. DES literature consistently shows gains on small
-    imbalanced multiclass problems where the global best model is pulled
-    toward majority classes.
+    10 classes.
     """
     print("  Fetching Yeast from OpenML...", end=' ', flush=True)
     ds = fetch_openml(data_id=181, as_frame=True, parser='auto')
@@ -435,10 +384,7 @@ def load_yeast():
 def load_segment():
     """
     Image Segment (OpenML 36): 2,310 samples of outdoor image segments,
-    19 features (colour, texture, shape statistics), 7 classes (sky, grass,
-    cement, window, brick, path, foliage). Different segment types produce
-    different feature distributions — natural competence regions for each
-    model family.
+    19 features, 7 classes.
     """
     print("  Fetching Image Segment from OpenML...", end=' ', flush=True)
     ds = fetch_openml(data_id=36, as_frame=True, parser='auto')
@@ -450,11 +396,7 @@ def load_segment():
 
 def load_vowel():
     """
-    Vowel Recognition (OpenML 307): 990 samples, 10 features (LPC-derived
-    formant frequencies), 11 vowel classes. A canonical DES benchmark —
-    phonetically similar vowels overlap heavily in feature space, creating
-    genuine uncertainty regions where routing to the right specialist matters.
-    Speaker name column is metadata and dropped (non-numeric).
+    Vowel Recognition (OpenML 307): 990 samples, 10 features, 11 vowel classes.
     """
     print("  Fetching Vowel from OpenML...", end=' ', flush=True)
     ds = fetch_openml(data_id=307, as_frame=True, parser='auto')
@@ -467,14 +409,7 @@ def load_vowel():
 def load_waveform():
     """
     Waveform (OpenML 60 / waveform-5000): 5,000 samples, 40 features,
-    3 classes (three types of waveform generated by combining 2 of 3 base
-    waves). All features are continuous with Gaussian noise added. The
-    three classes overlap heavily in feature space — Bayes-optimal error
-    is ~14% — making this a classic benchmark for methods that benefit
-    from routing to local specialists rather than relying on a single
-    global boundary. SVM-RBF wins near tight decision boundaries, KNN
-    wins in dense low-noise pockets, and Logistic Reg wins in the
-    linearly-separable regions where one wave dominates.
+    3 classes.
     """
     print("  Fetching Waveform from OpenML...", end=' ', flush=True)
     ds = fetch_openml(data_id=60, as_frame=True, parser='auto')
@@ -484,7 +419,7 @@ def load_waveform():
     return X, y, 'Waveform (waveform-5000)', X.shape[1], len(np.unique(y))
 
 
-# ── Router factory ─────────────────────────────────────────────────────────────
+# Router factory
 
 def _make_router(task, method, metric, mode, k, preset='balanced'):
     """Instantiate a deskit algorithm class, suppressing the preset print."""
@@ -492,7 +427,7 @@ def _make_router(task, method, metric, mode, k, preset='balanced'):
         return _DES_CLASSES[method](task=task, metric=metric, mode=mode, k=k, preset=preset)
 
 
-# ── Ensemble helpers ───────────────────────────────────────────────────────────
+# Ensemble helpers
 
 def fit_global_ensemble_reg(val_preds, y_val):
     """Uniform average — equal weight to every model."""
@@ -541,7 +476,7 @@ def des_predict_clf(router, X_test, test_probas, temperature, threshold):
     ])
 
 
-# ── DESlib comparison ──────────────────────────────────────────────────────────
+# ESlib comparison
 
 def run_deslib(fitted_models, X_val_s, y_val, X_test_s, y_test, k=K_CLF):
     """
@@ -590,7 +525,7 @@ def run_deslib(fitted_models, X_val_s, y_val, X_test_s, y_test, k=K_CLF):
     return results, fit_ms, pred_ms
 
 
-# ── Label helpers ──────────────────────────────────────────────────────────────
+# Label helpers
 
 def _label_reg(method):
     return {
@@ -614,7 +549,7 @@ def _label_clf(method):
     }[method]
 
 
-# ── DESReg comparison ──────────────────────────────────────────────────────────
+# DESReg comparison
 
 def run_desreg(X_tv_s, y_tv, X_test_s, y_test, seed=SEED, k=K_REG, verbose=True):
     """
@@ -673,7 +608,7 @@ def run_desreg(X_tv_s, y_tv, X_test_s, y_test, seed=SEED, k=K_REG, verbose=True)
     return results, fit_ms, pred_ms
 
 
-# ── Regression benchmark ───────────────────────────────────────────────────────
+# Regression benchmark
 
 def run_regression(loader, seed=SEED, verbose=True):
     """
@@ -772,7 +707,7 @@ def run_regression(loader, seed=SEED, verbose=True):
     return dict(rows), labelled_fit, labelled_pred
 
 
-# ── Classification benchmark ───────────────────────────────────────────────────
+# Classification benchmark
 
 def run_classification(loader, k=K_CLF, seed=SEED, verbose=True, note=None):
     """
@@ -829,9 +764,6 @@ def run_classification(loader, k=K_CLF, seed=SEED, verbose=True, note=None):
     _print(f"    v Simple Average")
 
     fit_times, predict_times, des_probas = {}, {}, {}
-    # KNORA algorithms use accuracy (0/1) on hard predictions — matching the
-    # original algorithm definition and DESlib's behaviour. KNN-DWS and OLA
-    # use log_loss on probabilities for richer continuous competence signals.
     _KNORA = {'knora-u', 'knora-e', 'knora-iu'}
     for method in DES_METHODS:
         th    = THRESHOLDS_CLF[method]
@@ -851,8 +783,7 @@ def run_classification(loader, k=K_CLF, seed=SEED, verbose=True, note=None):
         _print(f"    v {label:<42}  fit: {fit_times[method]:6.2f}ms"
                f"  |  predict: {predict_times[method]:6.2f}ms")
 
-    # DESlib comparison — always run so benchmark.py gets results even with verbose=False.
-    # Printing is gated on verbose separately.
+    # DESlib comparison
     dl_results, dl_fit_ms, dl_pred_ms = {}, {}, {}
     if DESLIB_AVAILABLE:
         dl_results, dl_fit_ms, dl_pred_ms = run_deslib(
@@ -893,8 +824,6 @@ def run_classification(loader, k=K_CLF, seed=SEED, verbose=True, note=None):
         labelled_pred.update({f'DESlib {dl}': v for dl, v in dl_pred_ms.items()})
     return dict(rows), labelled_fit, labelled_pred
 
-
-# ── Entry point ────────────────────────────────────────────────────────────────
 
 if __name__ == '__main__':
     banner()
