@@ -23,5 +23,5 @@ nav:
     - FAISS: backends/faiss.md
     - Annoy: backends/annoy.md
     - HNSW: backends/hnsw.md
-  - Selection: selection.md
+  - Algorithm Selection Guide: selection.md
   - Benchmark: benchmark.md
