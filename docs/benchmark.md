@@ -97,7 +97,7 @@ overlap.
 
 MAE, lower is better. % shown as delta vs Best Single. 100-seed mean ± std.
 
-| Dataset | Best Single        | Simple Avg | KNN-DWS | KNN-DWS-I | OLA | KNORA-U | KNORA-E | KNORA-IU |
+| Dataset | Best Single        | Simple Avg | DEWS-U | DEWS-I | OLA | KNORA-U | KNORA-E | KNORA-IU |
 |---|--------------------|---|---|---|---|---|---|---|
 | California Housing | 0.3955 ± 0.008     | +7.93% | −2.41% | **−2.68%** | −0.31% | −0.81% | +7.22% | −1.03% |
 | Bike Sharing | 51.604 ± 1.291     | +48.39% | −4.90% | **−6.25%** | −2.55% | +6.67% | +15.16% | +5.50% |
@@ -124,8 +124,8 @@ a mature sklearn-compatible DES library.
 |---|---|---|---|
 | Best Single | 98.24% | 0.25% | — |
 | Simple Average | 97.93% | 0.33% | −0.32% |
-| deskit KNN-DWS | 98.37% | 0.27% | +0.13% |
-| deskit KNN-DWS-I | **98.37%** | 0.27% | **+0.14%** |
+| deskit DEWS-U | 98.37% | 0.27% | +0.13% |
+| deskit DEWS-I | **98.37%** | 0.27% | **+0.14%** |
 | deskit OLA | 97.99% | 0.31% | −0.25% |
 | deskit KNORA-U | 98.18% | 0.29% | −0.05% |
 | deskit KNORA-E | 97.99% | 0.31% | −0.25% |
@@ -146,8 +146,8 @@ deskit achieves a best mean score of 98.37%; DESlib achieves a best mean score o
 |---|---|---|---|
 | Best Single | 59.19% | 2.70% | — |
 | Simple Average | 59.46% | 2.44% | +0.46% |
-| deskit KNN-DWS | 59.89% | 2.42% | +1.18% |
-| deskit KNN-DWS-I | 59.91% | 2.51% | +1.23% |
+| deskit DEWS-U | 59.89% | 2.42% | +1.18% |
+| deskit DEWS-I | 59.91% | 2.51% | +1.23% |
 | deskit OLA | 58.93% | 2.37% | −0.44% |
 | deskit KNORA-U | 59.89% | 2.53% | +1.18% |
 | deskit KNORA-E | 57.05% | 2.63% | −3.61% |
@@ -168,8 +168,8 @@ deskit achieves a best mean score of 60.06%; DESlib achieves a best mean score o
 |---|---|---|---|
 | Best Single | 93.65% | 1.11% | — |
 | Simple Average | 95.24% | 1.04% | +1.70% |
-| deskit KNN-DWS | 95.56% | 0.94% | +2.04% |
-| deskit KNN-DWS-I | 95.71% | 0.96% | +2.20% |
+| deskit DEWS-U | 95.56% | 0.94% | +2.04% |
+| deskit DEWS-I | 95.71% | 0.96% | +2.20% |
 | deskit OLA | 94.96% | 0.89% | +1.39% |
 | deskit KNORA-U | 95.60% | 1.02% | +2.08% |
 | deskit KNORA-E | 95.66% | 0.95% | +2.14% |
@@ -190,8 +190,8 @@ deskit achieves a best mean score of 95.84%; DESlib achieves a best mean score o
 |---|---|---|---|
 | Best Single | 90.54% | 2.17% | — |
 | Simple Average | 88.90% | 2.40% | −1.81% |
-| deskit KNN-DWS | 90.13% | 2.27% | −0.46% |
-| deskit KNN-DWS-I | 90.48% | 2.26% | −0.07% |
+| deskit DEWS-U | 90.13% | 2.27% | −0.46% |
+| deskit DEWS-I | 90.48% | 2.26% | −0.07% |
 | deskit OLA | 90.36% | 2.32% | −0.20% |
 | deskit KNORA-U | 90.76% | 2.16% | +0.25% |
 | deskit KNORA-E | 90.92% | 2.12% | +0.42% |
@@ -212,8 +212,8 @@ deskit achieves a best mean score of 91.38%; DESlib achieves a best mean score o
 |---|---|---|---|
 | Best Single | **86.28%** | 1.10% | — |
 | Simple Average | 85.38% | 1.02% | −1.04% |
-| deskit KNN-DWS | 85.80% | 1.04% | −0.56% |
-| deskit KNN-DWS-I | 85.80% | 1.02% | −0.55% |
+| deskit DEWS-U | 85.80% | 1.04% | −0.56% |
+| deskit DEWS-I | 85.80% | 1.02% | −0.55% |
 | deskit OLA | 84.03% | 1.10% | −2.61% |
 | deskit KNORA-U | 85.60% | 1.02% | −0.78% |
 | deskit KNORA-E | 82.84% | 1.13% | −3.99% |
@@ -244,7 +244,7 @@ in performance isn't very pronounced in datasets of the size used.
 
 ### deskit
 
-| Dataset | KNN-DWS | KNN-DWS-I | OLA | KNORA-U | KNORA-E | KNORA-IU |
+| Dataset | DEWS-U | DEWS-I | OLA | KNORA-U | KNORA-E | KNORA-IU |
 |---|---|---|---|---|---|---|
 | California Housing | 24.4 ms | 23.9 ms | 22.9 ms | 26.2 ms | 34.5 ms | 27.9 ms |
 | Bike Sharing | 19.8 ms | 19.3 ms | 18.5 ms | 21.4 ms | 28.4 ms | 22.9 ms |

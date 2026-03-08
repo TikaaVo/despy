@@ -121,8 +121,8 @@ weights = router.predict(X_test[i])
 
 | Method    | Best for | Notes                                                                                                    |
 |-----------|---|----------------------------------------------------------------------------------------------------------|
-| `KNNDWS`  | Regression | Softmax over neighbourhood-averaged scores. Temperature controls sharpness.                              |
-| `KNNDWSI` | Regression | Like KNN-DWS but scores are inverse-distance weighted.                                                   |
+| `DEWSU`  | Regression | Softmax over neighbourhood-averaged scores. Temperature controls sharpness.                              |
+| `DEWSI` | Regression | Like DEWS-U but scores are inverse-distance weighted.                                                   |
 | `KNORAU`  | Classification | Vote-count weighting. Each model earns one vote per neighbour it correctly classifies.                   |
 | `KNORAE`  | Classification | Intersection-based. Only models correct on all neighbours survive; falls back to smaller neighbourhoods. |
 | `KNORAIU` | Classification | Like KNORA-U but votes are inverse-distance weighted.                                                    |
@@ -173,7 +173,7 @@ def pinball(y_true, y_pred, alpha=0.9):
     e = y_true - y_pred
     return alpha * e if e >= 0 else (alpha - 1) * e
 
-router = KNNDWS(task="regression", metric=pinball, mode="min", k=20)
+router = DEWSU(task="regression", metric=pinball, mode="min", k=20)
 ```
 
 Built-in metric strings: `accuracy`, `mae`, `mse`, `rmse`, `log_loss`, `prob_correct`.
@@ -200,7 +200,7 @@ Pool: KNN, Decision Tree, SVR, Ridge, Bayesian Ridge.
 
 This pool was selected for having variability in architectures while avoiding a single dominant model.
 
-deskit algorithms tested: OLA, KNN-DWS, KNN-DWS-I, KNORA-U, KNORA-E, KNORA-IU.
+deskit algorithms tested: OLA, DEWS-U, DEWS-I, KNORA-U, KNORA-E, KNORA-IU.
 
 ### Regression (MAE, lower is better)
 
@@ -208,10 +208,10 @@ deskit algorithms tested: OLA, KNN-DWS, KNN-DWS-I, KNORA-U, KNORA-E, KNORA-IU.
 
 | Dataset                      | Best Single | Simple Avg | deskit best             |
 |------------------------------|-------------|------------|-------------------------|
-| California Housing (sklearn) | 0.3955      | +7.93%     | **−2.68%** (KNN-DWS-I)  |
-| Bike Sharing (OpenML)        | 51.604      | +48.39%    | **−6.25%** (KNN-DWS-I)  |
+| California Housing (sklearn) | 0.3955      | +7.93%     | **−2.68%** (DEWS-I)  |
+| Bike Sharing (OpenML)        | 51.604      | +48.39%    | **−6.25%** (DEWS-I)  |
 | Abalone (OpenML)             | **1.4923**  | +1.29%     | +1.61% (KNORA-IU)       |
-| Diabetes (sklearn)           | **44.986**  | +2.98%     | +0.88% (KNN-DWS-I)      |
+| Diabetes (sklearn)           | **44.986**  | +2.98%     | +0.88% (DEWS-I)      |
 | Concrete Strength (OpenML)   | 5.3934      | +21.30%    | **−2.85%** (KNORA-IU)   |
 
 deskit beats best single and simple averaging on 3/5 regression datasets. This shows how DES can provide a
@@ -228,10 +228,10 @@ and classification-like (like in Abalone).
 
 | Dataset                | Best Single | Simple Avg | deskit best             |
 |------------------------|-------------|------------|-------------------------|
-| HAR (OpenML)           | 98.24%      | −0.32%     | **+0.14%** (KNN-DWS-I)  |
+| HAR (OpenML)           | 98.24%      | −0.32%     | **+0.14%** (DEWS-I)  |
 | Yeast (OpenML)         | 59.19%      | +0.46%     | **+1.48%** (KNORA-IU)   |
 | Image Segment (OpenML) | 93.65%      | +1.70%     | **+2.33%** (KNORA-IU)   |
-| Waveform (OpenML)      | **86.28%**  | −1.04%     | −0.55% (KNN-DWS-I)      |
+| Waveform (OpenML)      | **86.28%**  | −1.04%     | −0.55% (DEWS-I)      |
 | Vowel (OpenML)         | 90.54%      | −1.81%     | **+0.93%** (KNORA-IU)   |
 
 deskit beats or matches best single and simple averaging on 4/5 classification datasets. As seen on regression, DES

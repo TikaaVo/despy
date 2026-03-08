@@ -1,5 +1,5 @@
 """
-KNN-DWS: K-Nearest Neighbors with Distance-Weighted Softmax.
+DEWS-IU: K-Nearest Neighbors with Distance-Weighted Softmax — Inverse-weighted Union.
 """
 from deskit.base.knnbase import KNNBase
 from deskit._config import make_finder, resolve_metric, prep_fit_inputs
@@ -7,9 +7,13 @@ from deskit.utils import to_numpy
 import numpy as np
 
 
-class KNNDWS(KNNBase):
+class DEWSI(KNNBase):
     """
-    KNN-DWS: K-Nearest Neighbors with Distance-Weighted Softmax.
+    DEWS-IU: K-Nearest Neighbors with Distance-Weighted Softmax — Inverse-weighted Union.
+
+    Extends DEWS-U by replacing the simple average of neighbor scores with an
+    inverse-distance-weighted average, so closer neighbors have a stronger
+    influence on the softmax routing — analogous to how KNORA-IU extends KNORA-U.
 
     Parameters
     ----------
@@ -88,23 +92,27 @@ class KNNDWS(KNNBase):
         x          = np.atleast_2d(to_numpy(x))
         batch_size = x.shape[0]
 
-        _, indices = self.model.kneighbors(x)
+        distances, indices = self.model.kneighbors(x)   # both (batch, k)
 
-        # Average each model's scores over the K neighbors
-        avg_scores = self.matrix[indices].mean(axis=1)
+        # Inverse-distance-weighted average of each model's scores over the K neighbors.
+        # Closer neighbors exert stronger influence on routing.
+        inv_dist    = 1.0 / np.maximum(distances, 1e-8)          # (batch, k)
+        inv_dist_w  = inv_dist / inv_dist.sum(axis=1, keepdims=True)  # normalised weights
+        neighbor_scores = self.matrix[indices]                    # (batch, k, n_models)
+        avg_scores  = (neighbor_scores * inv_dist_w[:, :, np.newaxis]).sum(axis=1)  # (batch, n_models)
 
-        # Normalize per neighborhood
+        # Normalize per neighborhood: best model = 1.0, worst = 0.0
         local_min   = avg_scores.min(axis=1, keepdims=True)
         local_max   = avg_scores.max(axis=1, keepdims=True)
         local_range = local_max - local_min
         norm_scores = (avg_scores - local_min) / np.where(local_range > 0, local_range, 1.0)
 
         # Zero out models below threshold.
-        # If nothing passes: go for single best
+        # If nothing passes: fall back to single best.
         if th > 0:
-            gate      = norm_scores >= th
-            any_pass  = gate.any(axis=1, keepdims=True)
-            gate      = np.where(any_pass, gate, norm_scores == 1.0)
+            gate        = norm_scores >= th
+            any_pass    = gate.any(axis=1, keepdims=True)
+            gate        = np.where(any_pass, gate, norm_scores == 1.0)
             norm_scores = norm_scores * gate
 
         # Softmax
@@ -112,7 +120,7 @@ class KNNDWS(KNNBase):
         exp_scores = np.exp((norm_scores - max_scores) / t)
         if th > 0:
             exp_scores = exp_scores * gate
-        total = exp_scores.sum(axis=1, keepdims=True)
+        total   = exp_scores.sum(axis=1, keepdims=True)
         weights = np.where(total > 0,
                            exp_scores / np.where(total > 0, total, 1.0),
                            np.full_like(exp_scores, 1.0 / len(self.models)))

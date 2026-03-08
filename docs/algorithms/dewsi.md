@@ -1,15 +1,15 @@
-# KNN-DWS
+# DEWS-I
 
 This algorithm is designed to be consistent and flexible for both classification and
-regression tasks. It uses soft blending between the top experts in a certain competence region to
-compute a set of weights for the models.
+regression tasks and is a variation of DEWS-U that takes neighbor distance into consideration.
+It uses soft blending between the top experts in a certain competence region to compute a set of weights for the models.
 
 ---
 
 ## When to use
 
-- KNN-DWS works best with soft metrics, so it was designed for regression. It also works for classification with confidence scores, 
-but not as well with hard predictions
+- DEWS-I is currently the general recommendation for regression tasks. DEWS-I works best with soft metrics, 
+so it also works for classification with confidence scores, but not as well with hard predictions
 - It performs best when the competence regions and pool are smooth and heterogeneous
 - It performs worst for homogeneous datasets and for classification with hard predictions
 
@@ -17,11 +17,11 @@ but not as well with hard predictions
 
 ## How it works
 
-When `fit` is called, KNN-DWS fits a KNN algorithm on the validation data and builds a criterion score matrix. 
-When `predict` is called, it finds the K nearest neighbors from the test point and uses the score matrix to average
-every models' scores over the K neighbors. Afterwards, it normalizes the average scores using min-max normalization and
-removes the models under a threshold. Finally, it takes the remaining models and creates weights with their scores using
-softmax with temperature.
+When `fit` is called, DEWS-I fits a KNN algorithm on the validation data and builds a criterion score matrix. 
+When `predict` is called, it finds the K nearest neighbors from the test point and uses the score matrix to combine
+every models' scores over the K neighbors with inverse-distance weights. Afterwards, it normalizes the average scores 
+using min-max normalization and removes the models under a threshold. Finally, it takes the remaining models 
+and creates weights with their scores using softmax with temperature.
 
 ---
 
@@ -43,18 +43,18 @@ softmax with temperature.
 ## Example
 ```python
 # Regression
-from deskit.des.knndsw import KNNDWS
+from deskit.des.dewsi import DEWSI
 
-router = KNNDWS(task="regression", metric="mae", mode="min", k=20)
+router = DEWSI(task="regression", metric="mae", mode="min", k=20)
 router.fit(X_val, y_val, val_preds)
 weights = router.predict(x)
 ```
 
 ```python
 # Classification
-from deskit.des.knndsw import KNNDWS
+from deskit.des.dewsi import DEWSI
 
-router = KNNDWS(task="classification", metric="log_loss", mode="min", k=20)
+router = DEWSI(task="classification", metric="log_loss", mode="min", k=20)
 router.fit(X_val, y_val, val_preds)
 weights = router.predict(x)
 ```

@@ -5,13 +5,13 @@ Metrics
 -------
 Pass a metric name string:
 
-    KNNDWS(task='classification', metric='log_loss', mode='min')
+    DEWSU(task='classification', metric='log_loss', mode='min')
 
 Or import a metric function directly:
 
     from deskit.metrics import log_loss, mae
 
-    KNNDWS(task='classification', metric=log_loss, mode='min')
+    DEWSU(task='classification', metric=log_loss, mode='min')
 
 Available built-in metrics:
     Scalar predictions (pass predict() output):
@@ -21,7 +21,7 @@ Available built-in metrics:
         'log_loss', 'prob_correct'
 """
 
-from deskit.des.knndws   import KNNDWS
+from deskit.des.dewsu   import DEWSU
 from deskit.des.ola      import OLA
 from deskit.des.knorau   import KNORAU
 from deskit.des.knorae   import KNORAE
@@ -31,7 +31,7 @@ from deskit._config      import SPEED_PRESETS, list_presets
 from deskit.analysis     import analyze
 
 __all__ = [
-    'KNNDWS',
+    'DEWSU',
     'OLA',
     'KNORAU',
     'KNORAE',

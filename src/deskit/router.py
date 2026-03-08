@@ -3,7 +3,7 @@ DynamicRouter — string-based factory for programmatic algorithm selection.
 
 Use DynamicRouter when you need to choose an algorithm via a string at runtime.
 """
-from deskit.des.knndws   import KNNDWS
+from deskit.des.dewsu   import DEWSU
 from deskit.des.ola      import OLA
 from deskit.des.knorau   import KNORAU
 from deskit.des.knorae   import KNORAE
@@ -12,7 +12,7 @@ from deskit._config      import SPEED_PRESETS, list_presets
 from deskit.utils        import to_numpy, add_batch_dim
 
 _METHOD_CLASSES = {
-    'knn-dws':  KNNDWS,
+    'DEWS-U':  DEWSU,
     'ola':      OLA,
     'knora-u':  KNORAU,
     'knora-e':  KNORAE,
@@ -29,7 +29,7 @@ class DynamicRouter:
     task : str
         'classification' or 'regression'.
     method : str
-        'knn-dws', 'ola', 'knora-u', or 'knora-e'.
+        'DEWS-U', 'ola', 'knora-u', or 'knora-e'.
     metric : str or callable
         Per-sample scoring function. Built-in names: 'accuracy', 'mae', 'mse',
         'rmse', 'log_loss', 'prob_correct'. Or any callable (y_true, y_pred) -> float.
@@ -40,7 +40,7 @@ class DynamicRouter:
     threshold : float
         Competence gate applied after per-neighborhood normalization.
     temperature : float, optional
-        Softmax sharpness for knn-dws. Ignored by other algorithms.
+        Softmax sharpness for DEWS-U. Ignored by other algorithms.
     preset : str
         Speed/accuracy preset. Call list_presets() for options.
     feature_extractor : callable, optional
@@ -51,7 +51,7 @@ class DynamicRouter:
         Forwarded to the neighbor finder constructor.
     """
 
-    def __init__(self, task, method='knn-dws', metric='accuracy', mode='max',
+    def __init__(self, task, method='DEWS-U', metric='accuracy', mode='max',
                  k=10, threshold=0.5, temperature=None, preset='balanced',
                  feature_extractor=None, finder=None, **kwargs):
 
@@ -71,8 +71,8 @@ class DynamicRouter:
         # Pass finder through as a kwarg when using preset='custom'.
         extra = {'finder': finder} if finder is not None else {}
 
-        # KNNDWS accepts temperature; the others don't.
-        if method == 'knn-dws':
+        # DEWSU accepts temperature; the others don't.
+        if method == 'DEWS-U':
             self._des = cls(
                 task=task, metric=metric, mode=mode, k=k,
                 threshold=threshold, temperature=temperature,
@@ -108,7 +108,7 @@ class DynamicRouter:
         ----------
         x : array-like, shape (n_features,) or (n_samples, n_features)
         temperature : float, optional
-            knn-dws only. Overrides the instance temperature for this call.
+            DEWS-U only. Overrides the instance temperature for this call.
         threshold : float, optional
             Overrides the instance threshold for this call.
 
@@ -125,7 +125,7 @@ class DynamicRouter:
     # Class methods
 
     @classmethod
-    def from_data_size(cls, n_samples, n_features, task, method='knn-dws',
+    def from_data_size(cls, n_samples, n_features, task, method='DEWS-U',
                        metric='accuracy', mode='max', k=10, threshold=0.5,
                        n_queries=None, **extra_kwargs):
         """
