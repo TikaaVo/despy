@@ -18,25 +18,6 @@ class DEWSV(KNNBase):
     """
     DEWS-V: Distance-weighted Ensemble with Softmax — Variance-penalised.
 
-    Extends DEWS-U by penalising models that behave inconsistently across the
-    K neighbours. After computing the uniform average of each model's scores,
-    the score is divided by (1 + local variance), so models with erratic
-    performance in the neighbourhood are down-weighted relative to consistent
-    ones — even if their mean score is similar.
-
-    Both scores and variance are normalised to [0, 1] within each neighbourhood
-    before the penalty is applied, making the adjustment dimensionless and
-    consistent regardless of metric scale or task type.
-
-    For MAE and MSE, variance is computed from signed residuals
-    (y_true - y_pred) rather than raw metric values, so that a model
-    oscillating between equal positive and negative errors is correctly
-    identified as inconsistent. The mean score used for routing still comes
-    from the standard metric (MAE/MSE), only the variance term uses signed
-    residuals.
-
-    For all other metrics, variance is computed directly from the score matrix.
-
     Parameters
     ----------
     task : str
@@ -92,7 +73,7 @@ class DEWSV(KNNBase):
         )
         super().fit(features, y, preds_dict)
 
-        # Build signed residual matrix for variance computation (MAE/MSE only).
+        # Build signed residual matrix for variance (MAE/MSE only).
         if self._use_signed:
             n_val    = len(y)
             n_models = len(self.models)
@@ -128,11 +109,11 @@ class DEWSV(KNNBase):
 
         _, indices = self.model.kneighbors(x)              # (batch, k)
 
-        # Uniform average of each model's scores over K neighbours.
+        # Uniform average of each model's scores over K neighbors.
         neighbor_scores = self.matrix[indices]              # (batch, k, n_models)
         avg_scores      = neighbor_scores.mean(axis=1)     # (batch, n_models)
 
-        # Variance of signed residuals (MAE/MSE) or score matrix (all others).
+        # Variance of signed residuals (MAE/MSE) or score matrix.
         if self._use_signed:
             var_scores = self._var_matrix[indices]         # (batch, k, n_models)
         else:
@@ -140,24 +121,22 @@ class DEWSV(KNNBase):
 
         local_var = var_scores.var(axis=1)                 # (batch, n_models)
 
-        # Normalize scores to [0, 1] before applying variance penalty so that
-        # the penalty is dimensionless and consistent across metrics and scales.
+        # Normalize scores to [0, 1]
         local_min   = avg_scores.min(axis=1, keepdims=True)
         local_max   = avg_scores.max(axis=1, keepdims=True)
         local_range = local_max - local_min
         norm_scores = (avg_scores - local_min) / np.where(local_range > 0, local_range, 1.0)
 
-        # Normalize variance to [0, 1] across models within each sample so the
-        # penalty magnitude is also scale-independent.
+        # Normalize variance to [0, 1]
         var_min   = local_var.min(axis=1, keepdims=True)
         var_max   = local_var.max(axis=1, keepdims=True)
         var_range = var_max - var_min
         norm_var  = (local_var - var_min) / np.where(var_range > 0, var_range, 1.0)
 
-        # Penalise inconsistent models: divide normalised score by (1 + normalised variance).
+        # Penalise inconsistent models
         norm_scores = norm_scores / (1.0 + norm_var)
 
-        # Re-normalise after penalty so the gate threshold remains meaningful.
+        # Re-normalize
         local_min   = norm_scores.min(axis=1, keepdims=True)
         local_max   = norm_scores.max(axis=1, keepdims=True)
         local_range = local_max - local_min

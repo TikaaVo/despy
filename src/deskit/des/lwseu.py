@@ -11,20 +11,6 @@ class LWSEU:
     """
     LWSE-U: Locally Weighted Stacking Ensemble (Uniform).
 
-    For each test point, finds its K nearest neighbours on the validation set
-    and fits a non-negative least squares combination of the pool models
-    directly on those K points. All neighbours are treated with equal weight
-    in the NNLS fit — no distance scaling is applied.
-
-    This is the ablation baseline for LWSE-I. Comparing the two isolates
-    the contribution of inverse-distance row-weighting in the local fit.
-
-    NNLS naturally produces sparse solutions — models that do not contribute
-    to the local fit are zeroed out without needing a threshold gate.
-
-    Works with both regression (scalar predictions) and classification
-    (probability arrays).
-
     Parameters
     ----------
     task : str

@@ -10,28 +10,6 @@ import numpy as np
 class LWSEI:
     """
     LWSE-I: Locally Weighted Stacking Ensemble (Inverse-distance).
-
-    For each test point, finds its K nearest neighbours on the validation set
-    and fits a non-negative least squares combination of the pool models
-    directly on those K points. Neighbours are weighted by inverse distance
-    via the WLS trick: each row of P and y is scaled by sqrt(inv_dist) before
-    NNLS, so closer neighbours have stronger influence on the local fit.
-
-    Unlike the DEWS family, LWSE-I does not score models by their historical
-    accuracy or route through softmax. Instead, it asks: given only the evidence
-    immediately around this test point, what linear blend of these models
-    minimises distance-weighted error here? Each test point gets its own
-    bespoke weights, fitted on the fly and discarded after prediction.
-
-    NNLS naturally produces sparse solutions — models that do not contribute
-    to the local fit are zeroed out without needing a threshold gate.
-
-    Compare with LWSE-U, which uses the same approach but without distance
-    weighting, to isolate the contribution of the WLS step.
-
-    Works with both regression (scalar predictions) and classification
-    (probability arrays).
-
     Parameters
     ----------
     task : str
@@ -76,7 +54,7 @@ class LWSEI:
         first        = np.asarray(list(preds_dict.values())[0])
         self._is_proba = (first.ndim == 2)
 
-        # Stack predictions into a single matrix for fast neighbour indexing.
+        # Stack predictions into a single matrix for fast neighbor indexing.
         if self._is_proba:
             self._val_preds = np.stack(
                 [np.asarray(preds_dict[m], dtype=float) for m in self.models],
@@ -119,13 +97,13 @@ class LWSEI:
             idx  = indices[b]                              # (k,)
             dist = distances[b]                            # (k,)
 
-            # Inverse-distance weights; sqrt for WLS row scaling.
+            # Inverse-distance weights
             inv_dist = 1.0 / np.maximum(dist, 1e-8)
             w        = inv_dist / inv_dist.sum()           # (k,)
             sqrt_w   = np.sqrt(w)                          # (k,)
 
             if self._is_proba:
-                # P: (k, n_models, n_classes) → (k*n_classes, n_models)
+                # P: (k, n_models, n_classes) becomes (k*n_classes, n_models)
                 P       = self._val_preds[idx]             # (k, n_models, n_classes)
                 k_, _, n_classes = P.shape
                 P_flat  = P.transpose(0, 2, 1).reshape(k_ * n_classes, n_models)
@@ -139,10 +117,10 @@ class LWSEI:
                 P_wls = P     * sqrt_w[:, np.newaxis]
                 y_wls = y_nbr * sqrt_w
 
-            # Solve: min ||P_wls @ c - y_wls||² s.t. c >= 0
+            # Solve
             coeffs, _ = nnls(P_wls, y_wls)
 
-            # Normalise; fall back to uniform if degenerate.
+            # Normalize and fall back to uniform if degenerate.
             total = coeffs.sum()
             if total > 1e-10:
                 coeffs = coeffs / total

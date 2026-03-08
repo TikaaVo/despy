@@ -16,26 +16,7 @@ def _signed_residual(y_true, y_pred):
 
 class DEWSIV(KNNBase):
     """
-    DEWS-IV: Distance-weighted Ensemble with Softmax — Inverse-distance + Variance-penalised.
-
-    Combines DEWS-I and DEWS-V. The mean score is inverse-distance weighted
-    (closer neighbours contribute more), and the variance penalty is also
-    computed with the same inverse-distance weights, so erratic behaviour
-    close to the test point is penalised more heavily than erratic behaviour
-    among distant neighbours.
-
-    Both scores and variance are normalised to [0, 1] within each neighbourhood
-    before the penalty is applied, making the adjustment dimensionless and
-    consistent regardless of metric scale or task type.
-
-    For MAE and MSE, variance is computed from signed residuals
-    (y_true - y_pred) rather than raw metric values, so that a model
-    oscillating between equal positive and negative errors is correctly
-    identified as inconsistent. The mean score used for routing still comes
-    from the standard metric (MAE/MSE), only the variance term uses signed
-    residuals.
-
-    For all other metrics, variance is computed directly from the score matrix.
+    DEWS-IV: Distance-weighted Ensemble with Softmax + Variance-penalised.
 
     Parameters
     ----------
@@ -92,7 +73,7 @@ class DEWSIV(KNNBase):
         )
         super().fit(features, y, preds_dict)
 
-        # Build signed residual matrix for variance computation (MAE/MSE only).
+        # Build signed residual matrix for variance (MAE/MSE only).
         if self._use_signed:
             n_val    = len(y)
             n_models = len(self.models)
@@ -128,7 +109,7 @@ class DEWSIV(KNNBase):
 
         distances, indices = self.model.kneighbors(x)     # both (batch, k)
 
-        # Inverse-distance weights — same as DEWS-I.
+        # Inverse-distance weights
         inv_dist   = 1.0 / np.maximum(distances, 1e-8)            # (batch, k)
         inv_dist_w = inv_dist / inv_dist.sum(axis=1, keepdims=True)  # normalised, (batch, k)
 
@@ -142,32 +123,28 @@ class DEWSIV(KNNBase):
         else:
             var_source = neighbor_scores
 
-        # Inverse-distance weighted variance: σ²_w = Σ w_i * (x_i - μ_w)²
-        # For signed residuals the mean is computed from var_source, not avg_scores,
-        # so that the variance is internally consistent with its own mean.
+        # Inverse-distance weighted variance
         w = inv_dist_w[:, :, np.newaxis]                           # (batch, k, 1)
         var_mean   = (var_source * w).sum(axis=1)                  # (batch, n_models)
         residuals  = var_source - var_mean[:, np.newaxis, :]       # (batch, k, n_models)
         local_var  = (w * residuals ** 2).sum(axis=1)              # (batch, n_models)
 
-        # Normalize scores to [0, 1] before applying variance penalty so that
-        # the penalty is dimensionless and consistent across metrics and scales.
+        # Normalize scores to [0, 1]
         local_min   = avg_scores.min(axis=1, keepdims=True)
         local_max   = avg_scores.max(axis=1, keepdims=True)
         local_range = local_max - local_min
         norm_scores = (avg_scores - local_min) / np.where(local_range > 0, local_range, 1.0)
 
-        # Normalize variance to [0, 1] across models within each sample so the
-        # penalty magnitude is also scale-independent.
+        # Normalize variance to [0, 1]
         var_min   = local_var.min(axis=1, keepdims=True)
         var_max   = local_var.max(axis=1, keepdims=True)
         var_range = var_max - var_min
         norm_var  = (local_var - var_min) / np.where(var_range > 0, var_range, 1.0)
 
-        # Penalise inconsistent models: divide normalised score by (1 + normalised variance).
+        # Penalise inconsistent models
         norm_scores = norm_scores / (1.0 + norm_var)
 
-        # Re-normalise after penalty so the gate threshold remains meaningful.
+        # Re-normalize
         local_min   = norm_scores.min(axis=1, keepdims=True)
         local_max   = norm_scores.max(axis=1, keepdims=True)
         local_range = local_max - local_min
