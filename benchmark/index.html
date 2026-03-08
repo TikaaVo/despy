@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://TikaaVo.github.io/deskit/benchmark/">
       
       
-        <link rel="prev" href="../backends/hnsw/">
+        <link rel="prev" href="../selection/">
       
       
       
@@ -378,6 +378,118 @@
   
   
     <li class="md-nav__item">
+      <a href="../algorithms/dewsv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DEWS-V
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../algorithms/dewsiv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DEWS-IV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../algorithms/lwseu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LWSE-U
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../algorithms/lwsei/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LWSE-I
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../algorithms/knorau/" class="md-nav__link">
         
   
@@ -652,6 +764,33 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../selection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Selection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1319,7 +1458,7 @@
 
 
 <h1 id="benchmark">Benchmark</h1>
-<p>All results are from a 100-seed benchmark (seeds 0–99) on standard datasets. Each seed
+<p>All results are from a 20-seed benchmark (seeds 0–19) on standard datasets. Each seed
 produces a different random train/validation/test split, and results are averaged across
 all 20 seeds to reduce variance from any single split.</p>
 <hr />
@@ -1395,7 +1534,7 @@ DES would be used in.</p>
 overlap.</p>
 <hr />
 <h2 id="regression-results">Regression results</h2>
-<p>MAE, lower is better. % shown as delta vs Best Single. 100-seed mean ± std.</p>
+<p>MAE, lower is better. % shown as delta vs Best Single. 20-seed mean ± std.</p>
 <table>
 <thead>
 <tr>
@@ -1404,6 +1543,11 @@ overlap.</p>
 <th>Simple Avg</th>
 <th>DEWS-U</th>
 <th>DEWS-I</th>
+<th>DEWS-T</th>
+<th>DEWS-V</th>
+<th>DEWS-IV</th>
+<th>LWSE-U</th>
+<th>LWSE-I</th>
 <th>OLA</th>
 <th>KNORA-U</th>
 <th>KNORA-E</th>
@@ -1413,68 +1557,96 @@ overlap.</p>
 <tbody>
 <tr>
 <td>California Housing</td>
-<td>0.3955 ± 0.008</td>
-<td>+7.93%</td>
-<td>−2.41%</td>
-<td><strong>−2.68%</strong></td>
-<td>−0.31%</td>
-<td>−0.81%</td>
-<td>+7.22%</td>
-<td>−1.03%</td>
+<td>0.3956 ± 0.008</td>
+<td>+7.99%</td>
+<td>−2.24%</td>
+<td><strong>−2.54%</strong></td>
+<td>−2.52%</td>
+<td>−1.17%</td>
+<td>−1.44%</td>
+<td>−1.67%</td>
+<td>−1.85%</td>
+<td>−0.03%</td>
+<td>−0.79%</td>
+<td>+7.46%</td>
+<td>−0.99%</td>
 </tr>
 <tr>
 <td>Bike Sharing</td>
-<td>51.604 ± 1.291</td>
-<td>+48.39%</td>
-<td>−4.90%</td>
-<td><strong>−6.25%</strong></td>
-<td>−2.55%</td>
-<td>+6.67%</td>
-<td>+15.16%</td>
-<td>+5.50%</td>
+<td>51.678 ± 0.860</td>
+<td>+47.77%</td>
+<td>−5.34%</td>
+<td><strong>−6.86%</strong></td>
+<td>−6.85%</td>
+<td>−3.25%</td>
+<td>−4.63%</td>
+<td>−3.85%</td>
+<td>−4.59%</td>
+<td>−2.97%</td>
+<td>+6.57%</td>
+<td>+14.79%</td>
+<td>+5.39%</td>
 </tr>
 <tr>
 <td>Abalone</td>
-<td><strong>1.4923 ± 0.054</strong></td>
-<td>+1.29%</td>
-<td>+3.00%</td>
-<td>+3.12%</td>
-<td>+4.02%</td>
-<td>+1.63%</td>
-<td>+7.60%</td>
-<td>+1.61%</td>
+<td><strong>1.4981 ± 0.044</strong></td>
+<td>+1.14%</td>
+<td>+2.68%</td>
+<td>+2.82%</td>
+<td>+2.80%</td>
+<td>+3.22%</td>
+<td>+3.20%</td>
+<td>+3.33%</td>
+<td>+3.38%</td>
+<td>+3.67%</td>
+<td>+1.47%</td>
+<td>+7.18%</td>
+<td>+1.47%</td>
 </tr>
 <tr>
 <td>Diabetes</td>
-<td><strong>44.986 ± 3.370</strong></td>
-<td>+2.98%</td>
-<td>+0.96%</td>
-<td>+0.88%</td>
-<td>+3.16%</td>
-<td>+5.13%</td>
-<td>+14.36%</td>
-<td>+5.02%</td>
+<td><strong>44.504 ± 2.645</strong></td>
+<td>+3.18%</td>
+<td>+1.17%</td>
+<td>+1.09%</td>
+<td>+1.09%</td>
+<td>+1.09%</td>
+<td><strong>+0.86%</strong></td>
+<td>+3.36%</td>
+<td>+3.25%</td>
+<td>+3.56%</td>
+<td>+5.86%</td>
+<td>+15.34%</td>
+<td>+5.74%</td>
 </tr>
 <tr>
 <td>Concrete Strength</td>
-<td>5.3934 ± 0.400</td>
-<td>+21.30%</td>
-<td>+1.40%</td>
-<td>−1.55%</td>
-<td>+3.94%</td>
+<td>5.2686 ± 0.336</td>
+<td>+23.66%</td>
+<td>+1.68%</td>
+<td>−1.20%</td>
+<td>−1.01%</td>
+<td>+3.36%</td>
 <td>+0.46%</td>
-<td>+11.29%</td>
-<td><strong>−2.85%</strong></td>
+<td>−3.46%</td>
+<td><strong>−5.41%</strong></td>
+<td>+3.54%</td>
+<td>+2.49%</td>
+<td>+11.84%</td>
+<td>−1.05%</td>
 </tr>
 </tbody>
 </table>
 <hr />
 <p>KNORA variants are designed for classification, which explains the poor performance
 on regression datasets; However, some exception can occur in certain datasets, either where
-feature space is has hard clusters (like in Concrete Strength) or when the target is discrete
+feature space has hard clusters (like in Concrete Strength) or when the target is discrete
 and classification-like (like in Abalone).</p>
+<p>LWSE-I is the clear winner on Concrete Strength (−5.41%), where strong local competence heterogeneity
+allows the per-sample NNLS solver to find genuine local blends. DEWS-IV edges all other algorithms on
+Diabetes, the only dataset where every ensembling method loses to the best single model.</p>
 <h2 id="classification-results">Classification results</h2>
-<p>Accuracy, higher is better. % shown as delta vs Best Single. 100-seed mean ± std.
+<p>Accuracy, higher is better. % shown as delta vs Best Single. 20-seed mean ± std.
 Classification datasets include a comparison against <a href="https://github.com/scikit-learn-contrib/DESlib">DESlib</a>,
 a mature sklearn-compatible DES library.</p>
 <h3 id="har_1">HAR</h3>
@@ -1491,96 +1663,144 @@ a mature sklearn-compatible DES library.</p>
 <tr>
 <td>Best Single</td>
 <td>98.24%</td>
-<td>0.25%</td>
+<td>0.23%</td>
 <td>—</td>
 </tr>
 <tr>
 <td>Simple Average</td>
-<td>97.93%</td>
-<td>0.33%</td>
-<td>−0.32%</td>
+<td>97.92%</td>
+<td>0.26%</td>
+<td>−0.33%</td>
 </tr>
 <tr>
 <td>deskit DEWS-U</td>
-<td>98.37%</td>
+<td>98.38%</td>
 <td>0.27%</td>
-<td>+0.13%</td>
+<td>+0.14%</td>
 </tr>
 <tr>
 <td>deskit DEWS-I</td>
-<td><strong>98.37%</strong></td>
+<td>98.39%</td>
 <td>0.27%</td>
-<td><strong>+0.14%</strong></td>
+<td>+0.15%</td>
+</tr>
+<tr>
+<td>deskit DEWS-T</td>
+<td><strong>98.40%</strong></td>
+<td>0.28%</td>
+<td><strong>+0.16%</strong></td>
+</tr>
+<tr>
+<td>deskit DEWS-V</td>
+<td>98.38%</td>
+<td>0.27%</td>
+<td>+0.14%</td>
+</tr>
+<tr>
+<td>deskit DEWS-IV</td>
+<td>98.38%</td>
+<td>0.27%</td>
+<td>+0.14%</td>
+</tr>
+<tr>
+<td>deskit LWSE-U</td>
+<td>98.17%</td>
+<td>0.34%</td>
+<td>−0.07%</td>
+</tr>
+<tr>
+<td>deskit LWSE-I</td>
+<td>98.20%</td>
+<td>0.34%</td>
+<td>−0.04%</td>
 </tr>
 <tr>
 <td>deskit OLA</td>
-<td>97.99%</td>
-<td>0.31%</td>
+<td>98.00%</td>
+<td>0.41%</td>
 <td>−0.25%</td>
 </tr>
 <tr>
 <td>deskit KNORA-U</td>
 <td>98.18%</td>
 <td>0.29%</td>
-<td>−0.05%</td>
+<td>−0.06%</td>
 </tr>
 <tr>
 <td>deskit KNORA-E</td>
-<td>97.99%</td>
-<td>0.31%</td>
-<td>−0.25%</td>
+<td>98.02%</td>
+<td>0.27%</td>
+<td>−0.22%</td>
 </tr>
 <tr>
 <td>deskit KNORA-IU</td>
 <td>98.19%</td>
 <td>0.29%</td>
-<td>−0.04%</td>
+<td>−0.05%</td>
 </tr>
 <tr>
 <td>DESlib KNORA-U</td>
-<td>98.04%</td>
-<td>0.32%</td>
-<td>−0.20%</td>
+<td>98.00%</td>
+<td>0.26%</td>
+<td>−0.25%</td>
 </tr>
 <tr>
 <td>DESlib KNORA-E</td>
-<td>97.83%</td>
+<td>97.82%</td>
 <td>0.34%</td>
-<td>−0.41%</td>
+<td>−0.43%</td>
 </tr>
 <tr>
 <td>DESlib OLA</td>
-<td>97.05%</td>
-<td>0.44%</td>
-<td>−1.20%</td>
+<td>97.09%</td>
+<td>0.48%</td>
+<td>−1.17%</td>
+</tr>
+<tr>
+<td>DESlib LCA</td>
+<td>91.29%</td>
+<td>1.27%</td>
+<td>−7.08%</td>
+</tr>
+<tr>
+<td>DESlib MCB</td>
+<td>97.03%</td>
+<td>0.36%</td>
+<td>−1.24%</td>
 </tr>
 <tr>
 <td>DESlib META-DES</td>
-<td><strong>98.37%</strong></td>
-<td>0.31%</td>
-<td><strong>+0.14%</strong></td>
+<td>98.35%</td>
+<td>0.30%</td>
+<td>+0.11%</td>
 </tr>
 <tr>
 <td>DESlib KNOP</td>
-<td>98.32%</td>
-<td>0.30%</td>
-<td>+0.08%</td>
+<td>98.33%</td>
+<td>0.29%</td>
+<td>+0.09%</td>
 </tr>
 <tr>
 <td>DESlib DESP</td>
-<td>97.98%</td>
-<td>0.33%</td>
-<td>−0.26%</td>
+<td>97.97%</td>
+<td>0.27%</td>
+<td>−0.28%</td>
 </tr>
 <tr>
 <td>DESlib DESKNN</td>
 <td>97.81%</td>
 <td>0.33%</td>
-<td>−0.43%</td>
+<td>−0.44%</td>
+</tr>
+<tr>
+<td>DESlib DES-MI</td>
+<td>95.56%</td>
+<td>1.31%</td>
+<td>−2.73%</td>
 </tr>
 </tbody>
 </table>
-<p>deskit achieves a best mean score of 98.37%; DESlib achieves a best mean score of 98.37%.</p>
+<p>deskit achieves a best mean score of 98.40%; DESlib achieves a best mean score of 98.35%.</p>
 <h3 id="yeast_1">Yeast</h3>
 <table>
 <thead>
@@ -1594,97 +1814,145 @@ a mature sklearn-compatible DES library.</p>
 <tbody>
 <tr>
 <td>Best Single</td>
-<td>59.19%</td>
-<td>2.70%</td>
+<td>58.87%</td>
+<td>2.20%</td>
 <td>—</td>
 </tr>
 <tr>
 <td>Simple Average</td>
-<td>59.46%</td>
-<td>2.44%</td>
-<td>+0.46%</td>
+<td>59.33%</td>
+<td>1.96%</td>
+<td>+0.77%</td>
 </tr>
 <tr>
 <td>deskit DEWS-U</td>
-<td>59.89%</td>
-<td>2.42%</td>
-<td>+1.18%</td>
+<td>59.46%</td>
+<td>1.94%</td>
+<td>+1.00%</td>
 </tr>
 <tr>
 <td>deskit DEWS-I</td>
-<td>59.91%</td>
-<td>2.51%</td>
-<td>+1.23%</td>
+<td>59.58%</td>
+<td>1.99%</td>
+<td>+1.20%</td>
 </tr>
 <tr>
-<td>deskit OLA</td>
-<td>58.93%</td>
-<td>2.37%</td>
-<td>−0.44%</td>
+<td>deskit DEWS-T</td>
+<td>59.71%</td>
+<td>2.07%</td>
+<td>+1.43%</td>
 </tr>
 <tr>
-<td>deskit KNORA-U</td>
-<td>59.89%</td>
-<td>2.53%</td>
-<td>+1.18%</td>
+<td>deskit DEWS-V</td>
+<td>59.51%</td>
+<td>2.05%</td>
+<td>+1.09%</td>
 </tr>
 <tr>
-<td>deskit KNORA-E</td>
-<td>57.05%</td>
-<td>2.63%</td>
-<td>−3.61%</td>
-</tr>
-<tr>
-<td>deskit KNORA-IU</td>
-<td><strong>60.06%</strong></td>
-<td>2.53%</td>
-<td><strong>+1.48%</strong></td>
-</tr>
-<tr>
-<td>DESlib KNORA-U</td>
-<td>59.91%</td>
-<td>2.32%</td>
-<td>+1.22%</td>
-</tr>
-<tr>
-<td>DESlib KNORA-E</td>
-<td>57.64%</td>
-<td>2.49%</td>
-<td>−2.61%</td>
-</tr>
-<tr>
-<td>DESlib OLA</td>
-<td>57.46%</td>
-<td>2.44%</td>
-<td>−2.91%</td>
-</tr>
-<tr>
-<td>DESlib META-DES</td>
-<td>58.28%</td>
-<td>2.61%</td>
-<td>−1.52%</td>
-</tr>
-<tr>
-<td>DESlib KNOP</td>
-<td>59.88%</td>
-<td>2.40%</td>
+<td>deskit DEWS-IV</td>
+<td>59.56%</td>
+<td>2.19%</td>
 <td>+1.17%</td>
 </tr>
 <tr>
-<td>DESlib DESP</td>
+<td>deskit LWSE-U</td>
+<td>58.40%</td>
+<td>1.97%</td>
+<td>−0.80%</td>
+</tr>
+<tr>
+<td>deskit LWSE-I</td>
+<td>58.42%</td>
+<td>2.10%</td>
+<td>−0.77%</td>
+</tr>
+<tr>
+<td>deskit OLA</td>
+<td>58.16%</td>
+<td>1.94%</td>
+<td>−1.20%</td>
+</tr>
+<tr>
+<td>deskit KNORA-U</td>
+<td>59.68%</td>
+<td>1.91%</td>
+<td>+1.37%</td>
+</tr>
+<tr>
+<td>deskit KNORA-E</td>
+<td>56.82%</td>
+<td>2.37%</td>
+<td>−3.49%</td>
+</tr>
+<tr>
+<td>deskit KNORA-IU</td>
+<td><strong>59.85%</strong></td>
+<td>1.90%</td>
+<td><strong>+1.66%</strong></td>
+</tr>
+<tr>
+<td>DESlib KNORA-U</td>
 <td>59.48%</td>
-<td>2.23%</td>
-<td>+0.50%</td>
+<td>1.81%</td>
+<td>+1.03%</td>
+</tr>
+<tr>
+<td>DESlib KNORA-E</td>
+<td>56.97%</td>
+<td>1.91%</td>
+<td>−3.23%</td>
+</tr>
+<tr>
+<td>DESlib OLA</td>
+<td>56.84%</td>
+<td>2.13%</td>
+<td>−3.46%</td>
+</tr>
+<tr>
+<td>DESlib LCA</td>
+<td>55.71%</td>
+<td>1.62%</td>
+<td>−5.38%</td>
+</tr>
+<tr>
+<td>DESlib MCB</td>
+<td>57.22%</td>
+<td>2.34%</td>
+<td>−2.80%</td>
+</tr>
+<tr>
+<td>DESlib META-DES</td>
+<td>57.46%</td>
+<td>2.35%</td>
+<td>−2.40%</td>
+</tr>
+<tr>
+<td>DESlib KNOP</td>
+<td>59.12%</td>
+<td>1.81%</td>
+<td>+0.43%</td>
+</tr>
+<tr>
+<td>DESlib DESP</td>
+<td>58.77%</td>
+<td>1.72%</td>
+<td>−0.17%</td>
 </tr>
 <tr>
 <td>DESlib DESKNN</td>
-<td>58.19%</td>
-<td>2.11%</td>
-<td>−1.69%</td>
+<td>57.93%</td>
+<td>1.74%</td>
+<td>−1.60%</td>
+</tr>
+<tr>
+<td>DESlib DES-MI</td>
+<td>56.90%</td>
+<td>2.25%</td>
+<td>−3.35%</td>
 </tr>
 </tbody>
 </table>
-<p>deskit achieves a best mean score of 60.06%; DESlib achieves a best mean score of 59.91%.</p>
+<p>deskit achieves a best mean score of 59.85%; DESlib achieves a best mean score of 59.48%.</p>
 <h3 id="image-segment_1">Image Segment</h3>
 <table>
 <thead>
@@ -1698,97 +1966,145 @@ a mature sklearn-compatible DES library.</p>
 <tbody>
 <tr>
 <td>Best Single</td>
-<td>93.65%</td>
-<td>1.11%</td>
+<td>93.70%</td>
+<td>0.98%</td>
 <td>—</td>
 </tr>
 <tr>
 <td>Simple Average</td>
-<td>95.24%</td>
-<td>1.04%</td>
-<td>+1.70%</td>
-</tr>
-<tr>
-<td>deskit DEWS-U</td>
-<td>95.56%</td>
-<td>0.94%</td>
-<td>+2.04%</td>
-</tr>
-<tr>
-<td>deskit DEWS-I</td>
-<td>95.71%</td>
-<td>0.96%</td>
-<td>+2.20%</td>
-</tr>
-<tr>
-<td>deskit OLA</td>
-<td>94.96%</td>
-<td>0.89%</td>
-<td>+1.39%</td>
-</tr>
-<tr>
-<td>deskit KNORA-U</td>
-<td>95.60%</td>
-<td>1.02%</td>
-<td>+2.08%</td>
-</tr>
-<tr>
-<td>deskit KNORA-E</td>
-<td>95.66%</td>
-<td>0.95%</td>
-<td>+2.14%</td>
-</tr>
-<tr>
-<td>deskit KNORA-IU</td>
-<td><strong>95.84%</strong></td>
-<td>0.98%</td>
-<td><strong>+2.33%</strong></td>
-</tr>
-<tr>
-<td>DESlib KNORA-U</td>
-<td>95.10%</td>
-<td>1.05%</td>
-<td>+1.54%</td>
-</tr>
-<tr>
-<td>DESlib KNORA-E</td>
-<td>95.45%</td>
-<td>0.89%</td>
-<td>+1.91%</td>
-</tr>
-<tr>
-<td>DESlib OLA</td>
-<td>94.96%</td>
-<td>0.95%</td>
+<td>95.01%</td>
+<td>1.03%</td>
 <td>+1.40%</td>
 </tr>
 <tr>
-<td>DESlib META-DES</td>
-<td>95.61%</td>
+<td>deskit DEWS-U</td>
+<td>95.58%</td>
+<td>0.86%</td>
+<td>+2.01%</td>
+</tr>
+<tr>
+<td>deskit DEWS-I</td>
+<td>95.79%</td>
+<td>0.95%</td>
+<td>+2.23%</td>
+</tr>
+<tr>
+<td>deskit DEWS-T</td>
+<td><strong>95.81%</strong></td>
+<td>0.98%</td>
+<td><strong>+2.25%</strong></td>
+</tr>
+<tr>
+<td>deskit DEWS-V</td>
+<td>95.55%</td>
+<td>0.93%</td>
+<td>+1.98%</td>
+</tr>
+<tr>
+<td>deskit DEWS-IV</td>
+<td><strong>95.81%</strong></td>
 <td>0.91%</td>
+<td><strong>+2.25%</strong></td>
+</tr>
+<tr>
+<td>deskit LWSE-U</td>
+<td>95.58%</td>
+<td>0.87%</td>
+<td>+2.01%</td>
+</tr>
+<tr>
+<td>deskit LWSE-I</td>
+<td>95.79%</td>
+<td>0.82%</td>
+<td>+2.23%</td>
+</tr>
+<tr>
+<td>deskit OLA</td>
+<td>94.98%</td>
+<td>0.92%</td>
+<td>+1.36%</td>
+</tr>
+<tr>
+<td>deskit KNORA-U</td>
+<td>95.37%</td>
+<td>0.92%</td>
+<td>+1.78%</td>
+</tr>
+<tr>
+<td>deskit KNORA-E</td>
+<td>95.41%</td>
+<td>1.01%</td>
+<td>+1.82%</td>
+</tr>
+<tr>
+<td>deskit KNORA-IU</td>
+<td>95.66%</td>
+<td>0.89%</td>
 <td>+2.09%</td>
 </tr>
 <tr>
+<td>DESlib KNORA-U</td>
+<td>94.95%</td>
+<td>0.97%</td>
+<td>+1.33%</td>
+</tr>
+<tr>
+<td>DESlib KNORA-E</td>
+<td>95.25%</td>
+<td>0.89%</td>
+<td>+1.65%</td>
+</tr>
+<tr>
+<td>DESlib OLA</td>
+<td>94.65%</td>
+<td>0.89%</td>
+<td>+1.02%</td>
+</tr>
+<tr>
+<td>DESlib LCA</td>
+<td>92.35%</td>
+<td>1.00%</td>
+<td>−1.44%</td>
+</tr>
+<tr>
+<td>DESlib MCB</td>
+<td>94.62%</td>
+<td>1.08%</td>
+<td>+0.98%</td>
+</tr>
+<tr>
+<td>DESlib META-DES</td>
+<td>95.48%</td>
+<td>0.81%</td>
+<td>+1.89%</td>
+</tr>
+<tr>
 <td>DESlib KNOP</td>
-<td>95.34%</td>
-<td>0.96%</td>
-<td>+1.80%</td>
+<td>95.19%</td>
+<td>1.00%</td>
+<td>+1.59%</td>
 </tr>
 <tr>
 <td>DESlib DESP</td>
-<td>94.89%</td>
-<td>1.05%</td>
-<td>+1.32%</td>
+<td>94.68%</td>
+<td>0.91%</td>
+<td>+1.04%</td>
 </tr>
 <tr>
 <td>DESlib DESKNN</td>
-<td>94.82%</td>
-<td>0.98%</td>
-<td>+1.25%</td>
+<td>94.76%</td>
+<td>1.00%</td>
+<td>+1.13%</td>
+</tr>
+<tr>
+<td>DESlib DES-MI</td>
+<td>94.76%</td>
+<td>1.00%</td>
+<td>+1.13%</td>
 </tr>
 </tbody>
 </table>
-<p>deskit achieves a best mean score of 95.84%; DESlib achieves a best mean score of 95.61%.</p>
+<p>deskit achieves a best mean score of 95.81%; DESlib achieves a best mean score of 95.48%.</p>
 <h3 id="vowel_1">Vowel</h3>
 <table>
 <thead>
@@ -1802,97 +2118,145 @@ a mature sklearn-compatible DES library.</p>
 <tbody>
 <tr>
 <td>Best Single</td>
-<td>90.54%</td>
-<td>2.17%</td>
+<td>89.95%</td>
+<td>2.94%</td>
 <td>—</td>
 </tr>
 <tr>
 <td>Simple Average</td>
-<td>88.90%</td>
-<td>2.40%</td>
-<td>−1.81%</td>
+<td>88.11%</td>
+<td>2.98%</td>
+<td>−2.05%</td>
 </tr>
 <tr>
 <td>deskit DEWS-U</td>
-<td>90.13%</td>
-<td>2.27%</td>
-<td>−0.46%</td>
+<td>89.87%</td>
+<td>2.51%</td>
+<td>−0.08%</td>
 </tr>
 <tr>
 <td>deskit DEWS-I</td>
-<td>90.48%</td>
-<td>2.26%</td>
-<td>−0.07%</td>
+<td>90.25%</td>
+<td>2.52%</td>
+<td>+0.34%</td>
+</tr>
+<tr>
+<td>deskit DEWS-T</td>
+<td>90.38%</td>
+<td>2.56%</td>
+<td>+0.48%</td>
+</tr>
+<tr>
+<td>deskit DEWS-V</td>
+<td>89.80%</td>
+<td>2.57%</td>
+<td>−0.17%</td>
+</tr>
+<tr>
+<td>deskit DEWS-IV</td>
+<td>90.10%</td>
+<td>2.52%</td>
+<td>+0.17%</td>
+</tr>
+<tr>
+<td>deskit LWSE-U</td>
+<td>91.84%</td>
+<td>1.97%</td>
+<td>+2.11%</td>
+</tr>
+<tr>
+<td>deskit LWSE-I</td>
+<td><strong>92.60%</strong></td>
+<td>1.81%</td>
+<td><strong>+2.95%</strong></td>
 </tr>
 <tr>
 <td>deskit OLA</td>
-<td>90.36%</td>
-<td>2.32%</td>
-<td>−0.20%</td>
+<td>90.23%</td>
+<td>2.45%</td>
+<td>+0.31%</td>
 </tr>
 <tr>
 <td>deskit KNORA-U</td>
-<td>90.76%</td>
-<td>2.16%</td>
-<td>+0.25%</td>
+<td>90.15%</td>
+<td>2.49%</td>
+<td>+0.22%</td>
 </tr>
 <tr>
 <td>deskit KNORA-E</td>
-<td>90.92%</td>
-<td>2.12%</td>
-<td>+0.42%</td>
+<td>90.61%</td>
+<td>2.29%</td>
+<td>+0.73%</td>
 </tr>
 <tr>
 <td>deskit KNORA-IU</td>
-<td><strong>91.38%</strong></td>
-<td>2.05%</td>
-<td><strong>+0.93%</strong></td>
+<td>90.78%</td>
+<td>2.14%</td>
+<td>+0.93%</td>
 </tr>
 <tr>
 <td>DESlib KNORA-U</td>
-<td>88.76%</td>
-<td>2.31%</td>
-<td>−1.96%</td>
+<td>88.18%</td>
+<td>2.58%</td>
+<td>−1.97%</td>
 </tr>
 <tr>
 <td>DESlib KNORA-E</td>
-<td>89.69%</td>
-<td>2.11%</td>
-<td>−0.94%</td>
+<td>89.47%</td>
+<td>2.45%</td>
+<td>−0.53%</td>
 </tr>
 <tr>
 <td>DESlib OLA</td>
-<td>88.30%</td>
-<td>2.71%</td>
-<td>−2.48%</td>
+<td>88.38%</td>
+<td>2.96%</td>
+<td>−1.74%</td>
+</tr>
+<tr>
+<td>DESlib LCA</td>
+<td>78.61%</td>
+<td>3.96%</td>
+<td>−12.61%</td>
+</tr>
+<tr>
+<td>DESlib MCB</td>
+<td>86.36%</td>
+<td>2.95%</td>
+<td>−3.99%</td>
 </tr>
 <tr>
 <td>DESlib META-DES</td>
-<td>90.09%</td>
-<td>2.16%</td>
-<td>−0.50%</td>
+<td>89.70%</td>
+<td>2.27%</td>
+<td>−0.28%</td>
 </tr>
 <tr>
 <td>DESlib KNOP</td>
-<td>89.27%</td>
-<td>2.30%</td>
-<td>−1.40%</td>
+<td>88.61%</td>
+<td>2.58%</td>
+<td>−1.49%</td>
 </tr>
 <tr>
 <td>DESlib DESP</td>
-<td>86.13%</td>
-<td>2.52%</td>
+<td>85.56%</td>
+<td>2.99%</td>
 <td>−4.88%</td>
 </tr>
 <tr>
 <td>DESlib DESKNN</td>
-<td>85.37%</td>
-<td>2.94%</td>
-<td>−5.71%</td>
+<td>85.23%</td>
+<td>3.60%</td>
+<td>−5.25%</td>
+</tr>
+<tr>
+<td>DESlib DES-MI</td>
+<td>85.23%</td>
+<td>3.60%</td>
+<td>−5.25%</td>
 </tr>
 </tbody>
 </table>
-<p>deskit achieves a best mean score of 91.38%; DESlib achieves a best mean score of 90.09%.</p>
+<p>deskit achieves a best mean score of 92.60%; DESlib achieves a best mean score of 89.70%.</p>
 <h3 id="waveform_1">Waveform</h3>
 <table>
 <thead>
@@ -1906,100 +2270,148 @@ a mature sklearn-compatible DES library.</p>
 <tbody>
 <tr>
 <td>Best Single</td>
-<td><strong>86.28%</strong></td>
-<td>1.10%</td>
+<td><strong>85.91%</strong></td>
+<td>0.76%</td>
 <td>—</td>
 </tr>
 <tr>
 <td>Simple Average</td>
-<td>85.38%</td>
-<td>1.02%</td>
-<td>−1.04%</td>
+<td>85.07%</td>
+<td>0.76%</td>
+<td>−0.98%</td>
 </tr>
 <tr>
 <td>deskit DEWS-U</td>
-<td>85.80%</td>
-<td>1.04%</td>
-<td>−0.56%</td>
+<td>85.57%</td>
+<td>0.79%</td>
+<td>−0.40%</td>
 </tr>
 <tr>
 <td>deskit DEWS-I</td>
-<td>85.80%</td>
-<td>1.02%</td>
+<td>85.54%</td>
+<td>0.79%</td>
+<td>−0.43%</td>
+</tr>
+<tr>
+<td>deskit DEWS-T</td>
+<td>85.57%</td>
+<td>0.75%</td>
+<td>−0.39%</td>
+</tr>
+<tr>
+<td>deskit DEWS-V</td>
+<td>85.43%</td>
+<td>0.80%</td>
 <td>−0.55%</td>
 </tr>
 <tr>
+<td>deskit DEWS-IV</td>
+<td>85.43%</td>
+<td>0.81%</td>
+<td>−0.56%</td>
+</tr>
+<tr>
+<td>deskit LWSE-U</td>
+<td>83.87%</td>
+<td>0.96%</td>
+<td>−2.37%</td>
+</tr>
+<tr>
+<td>deskit LWSE-I</td>
+<td>83.92%</td>
+<td>0.94%</td>
+<td>−2.32%</td>
+</tr>
+<tr>
 <td>deskit OLA</td>
-<td>84.03%</td>
-<td>1.10%</td>
-<td>−2.61%</td>
+<td>84.15%</td>
+<td>0.89%</td>
+<td>−2.04%</td>
 </tr>
 <tr>
 <td>deskit KNORA-U</td>
-<td>85.60%</td>
-<td>1.02%</td>
-<td>−0.78%</td>
+<td>85.41%</td>
+<td>0.80%</td>
+<td>−0.59%</td>
 </tr>
 <tr>
 <td>deskit KNORA-E</td>
-<td>82.84%</td>
-<td>1.13%</td>
-<td>−3.99%</td>
+<td>82.91%</td>
+<td>1.12%</td>
+<td>−3.50%</td>
 </tr>
 <tr>
 <td>deskit KNORA-IU</td>
-<td>85.62%</td>
-<td>1.02%</td>
-<td>−0.77%</td>
+<td>85.42%</td>
+<td>0.78%</td>
+<td>−0.58%</td>
 </tr>
 <tr>
 <td>DESlib KNORA-U</td>
-<td>85.83%</td>
-<td>1.03%</td>
-<td>−0.53%</td>
+<td>85.61%</td>
+<td>0.82%</td>
+<td>−0.35%</td>
 </tr>
 <tr>
 <td>DESlib KNORA-E</td>
 <td>83.19%</td>
-<td>1.14%</td>
-<td>−3.57%</td>
+<td>1.02%</td>
+<td>−3.17%</td>
 </tr>
 <tr>
 <td>DESlib OLA</td>
-<td>81.19%</td>
-<td>1.29%</td>
-<td>−5.90%</td>
+<td>81.14%</td>
+<td>1.15%</td>
+<td>−5.55%</td>
+</tr>
+<tr>
+<td>DESlib LCA</td>
+<td>77.10%</td>
+<td>1.64%</td>
+<td>−10.25%</td>
+</tr>
+<tr>
+<td>DESlib MCB</td>
+<td>82.16%</td>
+<td>1.18%</td>
+<td>−4.36%</td>
 </tr>
 <tr>
 <td>DESlib META-DES</td>
-<td>85.29%</td>
-<td>1.11%</td>
-<td>−1.15%</td>
+<td>85.19%</td>
+<td>0.91%</td>
+<td>−0.84%</td>
 </tr>
 <tr>
 <td>DESlib KNOP</td>
-<td><strong>86.10%</strong></td>
-<td>1.08%</td>
-<td><strong>−0.21%</strong></td>
+<td><strong>85.97%</strong></td>
+<td>0.97%</td>
+<td><strong>+0.07%</strong></td>
 </tr>
 <tr>
 <td>DESlib DESP</td>
-<td>85.78%</td>
-<td>1.03%</td>
-<td>−0.57%</td>
+<td>85.50%</td>
+<td>0.82%</td>
+<td>−0.47%</td>
 </tr>
 <tr>
 <td>DESlib DESKNN</td>
-<td>84.61%</td>
-<td>1.18%</td>
-<td>−1.93%</td>
+<td>84.39%</td>
+<td>0.95%</td>
+<td>−1.78%</td>
+</tr>
+<tr>
+<td>DESlib DES-MI</td>
+<td>84.07%</td>
+<td>1.02%</td>
+<td>−2.14%</td>
 </tr>
 </tbody>
 </table>
-<p>deskit achieves a best mean score of 85.80%; DESlib achieves a best mean score of 86.10%.</p>
+<p>deskit achieves a best mean score of 85.57%; DESlib achieves a best mean score of 85.97%.</p>
 <hr />
 <h2 id="timing">Timing</h2>
-<p>Mean fit + predict time in milliseconds, averaged across 100 seeds. Fit is measured once
+<p>Mean fit + predict time in milliseconds, averaged across 20 seeds. Fit is measured once
 per dataset per seed; predict is measured over the full test set.</p>
 <p>deskit caches all model predictions on the validation set at fit time and reads from that
 matrix at inference, so no model is called at predict time. This is the primary reason for
@@ -2013,6 +2425,11 @@ in performance isn't very pronounced in datasets of the size used.</p>
 <th>Dataset</th>
 <th>DEWS-U</th>
 <th>DEWS-I</th>
+<th>DEWS-T</th>
+<th>DEWS-V</th>
+<th>DEWS-IV</th>
+<th>LWSE-U</th>
+<th>LWSE-I</th>
 <th>OLA</th>
 <th>KNORA-U</th>
 <th>KNORA-E</th>
@@ -2022,91 +2439,141 @@ in performance isn't very pronounced in datasets of the size used.</p>
 <tbody>
 <tr>
 <td>California Housing</td>
-<td>24.4 ms</td>
-<td>23.9 ms</td>
-<td>22.9 ms</td>
-<td>26.2 ms</td>
-<td>34.5 ms</td>
-<td>27.9 ms</td>
+<td>25.2 ms</td>
+<td>23.5 ms</td>
+<td>31.0 ms</td>
+<td>27.8 ms</td>
+<td>29.1 ms</td>
+<td>44.1 ms</td>
+<td>59.3 ms</td>
+<td>22.4 ms</td>
+<td>26.3 ms</td>
+<td>34.7 ms</td>
+<td>27.6 ms</td>
 </tr>
 <tr>
 <td>Bike Sharing</td>
-<td>19.8 ms</td>
-<td>19.3 ms</td>
-<td>18.5 ms</td>
-<td>21.4 ms</td>
-<td>28.4 ms</td>
-<td>22.9 ms</td>
+<td>19.5 ms</td>
+<td>19.1 ms</td>
+<td>25.2 ms</td>
+<td>22.7 ms</td>
+<td>23.5 ms</td>
+<td>35.2 ms</td>
+<td>47.6 ms</td>
+<td>18.8 ms</td>
+<td>21.0 ms</td>
+<td>28.3 ms</td>
+<td>22.6 ms</td>
 </tr>
 <tr>
 <td>Abalone</td>
-<td>5.1 ms</td>
-<td>5.0 ms</td>
-<td>4.7 ms</td>
+<td>5.2 ms</td>
+<td>5.2 ms</td>
+<td>6.8 ms</td>
+<td>6.0 ms</td>
+<td>6.5 ms</td>
+<td>8.8 ms</td>
+<td>11.9 ms</td>
+<td>4.5 ms</td>
+<td>5.4 ms</td>
+<td>7.3 ms</td>
 <td>5.3 ms</td>
-<td>7.1 ms</td>
-<td>5.7 ms</td>
 </tr>
 <tr>
 <td>Diabetes</td>
 <td>1.4 ms</td>
+<td>1.3 ms</td>
+<td>1.4 ms</td>
+<td>1.4 ms</td>
+<td>1.3 ms</td>
+<td>1.5 ms</td>
+<td>1.8 ms</td>
+<td>1.0 ms</td>
+<td>1.3 ms</td>
 <td>1.4 ms</td>
 <td>1.2 ms</td>
-<td>1.3 ms</td>
-<td>1.6 ms</td>
-<td>1.3 ms</td>
 </tr>
 <tr>
 <td>Concrete Strength</td>
-<td>1.7 ms</td>
-<td>1.7 ms</td>
+<td>1.8 ms</td>
+<td>1.8 ms</td>
+<td>2.4 ms</td>
+<td>2.0 ms</td>
+<td>2.0 ms</td>
+<td>2.4 ms</td>
+<td>3.2 ms</td>
+<td>1.4 ms</td>
 <td>1.6 ms</td>
-<td>1.8 ms</td>
 <td>2.2 ms</td>
-<td>1.8 ms</td>
+<td>1.7 ms</td>
 </tr>
 <tr>
 <td>HAR</td>
-<td>66.9 ms</td>
-<td>55.5 ms</td>
-<td>55.0 ms</td>
-<td>55.9 ms</td>
-<td>60.8 ms</td>
-<td>57.9 ms</td>
+<td>65.8 ms</td>
+<td>56.1 ms</td>
+<td>60.1 ms</td>
+<td>57.6 ms</td>
+<td>58.3 ms</td>
+<td>74.1 ms</td>
+<td>83.4 ms</td>
+<td>56.6 ms</td>
+<td>57.8 ms</td>
+<td>63.2 ms</td>
+<td>60.1 ms</td>
 </tr>
 <tr>
 <td>Yeast</td>
-<td>3.5 ms</td>
-<td>3.2 ms</td>
-<td>3.0 ms</td>
+<td>4.5 ms</td>
+<td>3.9 ms</td>
+<td>4.5 ms</td>
+<td>3.7 ms</td>
+<td>3.6 ms</td>
+<td>5.8 ms</td>
+<td>7.0 ms</td>
 <td>2.8 ms</td>
+<td>2.9 ms</td>
 <td>3.1 ms</td>
-<td>3.0 ms</td>
+<td>2.9 ms</td>
 </tr>
 <tr>
 <td>Image Segment</td>
-<td>5.8 ms</td>
-<td>5.5 ms</td>
-<td>5.3 ms</td>
-<td>5.1 ms</td>
+<td>6.0 ms</td>
 <td>5.4 ms</td>
+<td>6.3 ms</td>
+<td>5.4 ms</td>
+<td>5.6 ms</td>
+<td>8.5 ms</td>
+<td>11.2 ms</td>
 <td>5.3 ms</td>
+<td>5.3 ms</td>
+<td>5.4 ms</td>
+<td>5.5 ms</td>
 </tr>
 <tr>
 <td>Vowel</td>
-<td>3.5 ms</td>
 <td>3.4 ms</td>
+<td>3.3 ms</td>
+<td>3.5 ms</td>
 <td>3.2 ms</td>
 <td>3.1 ms</td>
-<td>3.3 ms</td>
+<td>4.5 ms</td>
+<td>5.7 ms</td>
+<td>3.1 ms</td>
+<td>3.0 ms</td>
+<td>3.1 ms</td>
 <td>3.1 ms</td>
 </tr>
 <tr>
 <td>Waveform</td>
+<td>10.0 ms</td>
+<td>10.0 ms</td>
 <td>10.5 ms</td>
-<td>9.8 ms</td>
-<td>9.6 ms</td>
-<td>9.1 ms</td>
+<td>10.2 ms</td>
+<td>10.4 ms</td>
+<td>15.2 ms</td>
+<td>19.8 ms</td>
+<td>9.4 ms</td>
+<td>9.3 ms</td>
 <td>9.9 ms</td>
 <td>9.8 ms</td>
 </tr>
@@ -2120,62 +2587,80 @@ in performance isn't very pronounced in datasets of the size used.</p>
 <th>KNORA-U</th>
 <th>KNORA-E</th>
 <th>OLA</th>
+<th>LCA</th>
+<th>MCB</th>
 <th>META-DES</th>
 <th>KNOP</th>
 <th>DESP</th>
 <th>DESKNN</th>
+<th>DES-MI</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>HAR</td>
-<td>1853.2 ms</td>
-<td>1862.5 ms</td>
-<td>1871.0 ms</td>
-<td>2857.3 ms</td>
-<td>2823.9 ms</td>
-<td>1886.4 ms</td>
-<td>1912.5 ms</td>
+<td>1886.2 ms</td>
+<td>1884.9 ms</td>
+<td>1884.5 ms</td>
+<td>1901.0 ms</td>
+<td>1900.5 ms</td>
+<td>2905.5 ms</td>
+<td>2841.3 ms</td>
+<td>1917.8 ms</td>
+<td>1946.7 ms</td>
+<td>1919.4 ms</td>
 </tr>
 <tr>
 <td>Yeast</td>
-<td>60.7 ms</td>
-<td>62.0 ms</td>
+<td>56.7 ms</td>
+<td>57.3 ms</td>
+<td>58.4 ms</td>
+<td>59.4 ms</td>
 <td>63.3 ms</td>
-<td>108.2 ms</td>
-<td>84.3 ms</td>
-<td>61.0 ms</td>
-<td>70.1 ms</td>
+<td>99.8 ms</td>
+<td>79.5 ms</td>
+<td>56.8 ms</td>
+<td>66.1 ms</td>
+<td>57.1 ms</td>
 </tr>
 <tr>
 <td>Image Segment</td>
-<td>20.9 ms</td>
-<td>21.2 ms</td>
-<td>20.8 ms</td>
-<td>36.9 ms</td>
-<td>32.2 ms</td>
+<td>22.6 ms</td>
+<td>22.1 ms</td>
+<td>21.8 ms</td>
+<td>22.6 ms</td>
+<td>22.8 ms</td>
+<td>37.7 ms</td>
+<td>33.2 ms</td>
 <td>21.3 ms</td>
-<td>25.0 ms</td>
+<td>25.6 ms</td>
+<td>21.5 ms</td>
 </tr>
 <tr>
 <td>Vowel</td>
-<td>53.5 ms</td>
-<td>53.7 ms</td>
-<td>54.7 ms</td>
-<td>96.3 ms</td>
-<td>72.8 ms</td>
-<td>53.6 ms</td>
-<td>58.0 ms</td>
+<td>50.3 ms</td>
+<td>49.1 ms</td>
+<td>50.2 ms</td>
+<td>52.1 ms</td>
+<td>55.2 ms</td>
+<td>89.6 ms</td>
+<td>68.2 ms</td>
+<td>49.4 ms</td>
+<td>53.4 ms</td>
+<td>49.9 ms</td>
 </tr>
 <tr>
 <td>Waveform</td>
-<td>186.2 ms</td>
-<td>191.4 ms</td>
-<td>193.1 ms</td>
-<td>333.2 ms</td>
-<td>312.2 ms</td>
-<td>197.7 ms</td>
-<td>211.4 ms</td>
+<td>185.3 ms</td>
+<td>192.1 ms</td>
+<td>194.2 ms</td>
+<td>195.0 ms</td>
+<td>201.6 ms</td>
+<td>332.9 ms</td>
+<td>312.7 ms</td>
+<td>204.3 ms</td>
+<td>220.9 ms</td>
+<td>202.1 ms</td>
 </tr>
 </tbody>
 </table>

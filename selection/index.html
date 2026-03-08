@@ -8,28 +8,28 @@
       
       
       
-        <link rel="canonical" href="https://TikaaVo.github.io/deskit/backends/annoy/">
+        <link rel="canonical" href="https://TikaaVo.github.io/deskit/selection/">
       
       
-        <link rel="prev" href="../faiss/">
+        <link rel="prev" href="../backends/hnsw/">
       
       
-        <link rel="next" href="../hnsw/">
+        <link rel="next" href="../benchmark/">
       
       
         
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
     
     
       
-        <title>Annoy - deskit</title>
+        <title>Selection - deskit</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
       
 
@@ -48,7 +48,7 @@
       
     
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -66,7 +66,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#annoy" class="md-skip">
+        <a href="#algorithm-selection-guide" class="md-skip">
           Skip to content
         </a>
       
@@ -82,7 +82,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="deskit" class="md-header__button md-logo" aria-label="deskit" data-md-component="logo">
+    <a href=".." title="deskit" class="md-header__button md-logo" aria-label="deskit" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -102,7 +102,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Annoy
+              Selection
             
           </span>
         </div>
@@ -192,7 +192,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="deskit" class="md-nav__button md-logo" aria-label="deskit" data-md-component="logo">
+    <a href=".." title="deskit" class="md-nav__button md-logo" aria-label="deskit" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -222,7 +222,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -296,7 +296,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../algorithms/dewsu/" class="md-nav__link">
+      <a href="../algorithms/dewsu/" class="md-nav__link">
         
   
   
@@ -324,7 +324,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../algorithms/dewsi/" class="md-nav__link">
+      <a href="../algorithms/dewsi/" class="md-nav__link">
         
   
   
@@ -352,7 +352,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../algorithms/dewst/" class="md-nav__link">
+      <a href="../algorithms/dewst/" class="md-nav__link">
         
   
   
@@ -380,7 +380,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../algorithms/dewsv/" class="md-nav__link">
+      <a href="../algorithms/dewsv/" class="md-nav__link">
         
   
   
@@ -408,7 +408,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../algorithms/dewsiv/" class="md-nav__link">
+      <a href="../algorithms/dewsiv/" class="md-nav__link">
         
   
   
@@ -436,7 +436,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../algorithms/lwseu/" class="md-nav__link">
+      <a href="../algorithms/lwseu/" class="md-nav__link">
         
   
   
@@ -464,7 +464,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../algorithms/lwsei/" class="md-nav__link">
+      <a href="../algorithms/lwsei/" class="md-nav__link">
         
   
   
@@ -492,7 +492,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../algorithms/knorau/" class="md-nav__link">
+      <a href="../algorithms/knorau/" class="md-nav__link">
         
   
   
@@ -520,7 +520,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../algorithms/knorae/" class="md-nav__link">
+      <a href="../algorithms/knorae/" class="md-nav__link">
         
   
   
@@ -548,7 +548,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../algorithms/knoraiu/" class="md-nav__link">
+      <a href="../algorithms/knoraiu/" class="md-nav__link">
         
   
   
@@ -576,7 +576,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../algorithms/ola/" class="md-nav__link">
+      <a href="../algorithms/ola/" class="md-nav__link">
         
   
   
@@ -608,20 +608,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
@@ -642,7 +640,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -660,7 +658,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../knn/" class="md-nav__link">
+      <a href="../backends/knn/" class="md-nav__link">
         
   
   
@@ -688,7 +686,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../faiss/" class="md-nav__link">
+      <a href="../backends/faiss/" class="md-nav__link">
         
   
   
@@ -713,37 +711,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Annoy
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../backends/annoy/" class="md-nav__link">
         
   
   
@@ -759,92 +730,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#when-to-use" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        When to use
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-it-works" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How it works
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Parameters
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#dependencies" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Dependencies
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Notes
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -857,7 +742,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../hnsw/" class="md-nav__link">
+      <a href="../backends/hnsw/" class="md-nav__link">
         
   
   
@@ -889,10 +774,35 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../selection/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Selection
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -908,6 +818,68 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#algorithm-selection-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Algorithm Selection Guide
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#regression" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regression
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#not-recommended-for-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Not recommended for use
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -919,7 +891,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../benchmark/" class="md-nav__link">
+      <a href="../benchmark/" class="md-nav__link">
         
   
   
@@ -956,8 +928,6 @@
   
   
   
-    
-  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -966,10 +936,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#when-to-use" class="md-nav__link">
+  <a href="#algorithm-selection-guide" class="md-nav__link">
     <span class="md-ellipsis">
       
-        When to use
+        Algorithm Selection Guide
       
     </span>
   </a>
@@ -977,10 +947,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-it-works" class="md-nav__link">
+  <a href="#regression" class="md-nav__link">
     <span class="md-ellipsis">
       
-        How it works
+        Regression
       
     </span>
   </a>
@@ -988,10 +958,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#parameters" class="md-nav__link">
+  <a href="#classification" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Parameters
+        Classification
       
     </span>
   </a>
@@ -999,32 +969,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#dependencies" class="md-nav__link">
+  <a href="#not-recommended-for-use" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Dependencies
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Notes
+        Not recommended for use
       
     </span>
   </a>
@@ -1051,82 +999,61 @@
   
 
 
-<h1 id="annoy">Annoy</h1>
-<p>This backend uses Spotify's <a href="https://github.com/spotify/annoy">Annoy</a> library for approximate nearest neighbour search.
-It is memory-efficient and supports persisting the index to disk, making it useful
-when the index needs to be saved and reloaded across sessions.</p>
-<hr />
-<h2 id="when-to-use">When to use</h2>
-<ul>
-<li>Memory efficiency is a priority</li>
-<li>It performs best when you need to persist the index to disk and reload it without rebuilding</li>
-<li>It performs worst on very low-dimensional data where the
-tree structure can degenerate</li>
-</ul>
-<hr />
-<h2 id="how-it-works">How it works</h2>
-<p>At fit time, Annoy builds a forest of <code>n_trees</code> random projection trees over the
-validation features. More trees produce better recall at the cost of more memory and
-longer build times. At query time, <code>search_k</code> controls how many nodes are visited
-across all trees — higher values improve recall at the cost of slower queries. By
-default, <code>search_k</code> is set to <code>n_trees * k</code>.</p>
-<hr />
-<h2 id="parameters">Parameters</h2>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>k</code></td>
-<td>int</td>
-<td>10</td>
-<td>Number of neighbours</td>
-</tr>
-<tr>
-<td><code>n_trees</code></td>
-<td>int</td>
-<td>100</td>
-<td>Number of trees in the forest. Higher = better recall, more memory</td>
-</tr>
-<tr>
-<td><code>metric</code></td>
-<td>str</td>
-<td><code>"euclidean"</code></td>
-<td>Distance metric: <code>"euclidean"</code>, <code>"angular"</code>, <code>"manhattan"</code>, <code>"hamming"</code>, <code>"dot"</code></td>
-</tr>
-<tr>
-<td><code>search_k</code></td>
-<td>int</td>
-<td><code>n_trees * k</code></td>
-<td>Nodes visited per query. Higher = better recall, slower queries</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="dependencies">Dependencies</h2>
-<p><code>annoy&gt;=1.17</code></p>
-<hr />
-<h2 id="example">Example</h2>
-<pre><code class="language-python">from deskit.des.knorau import KNORAU
+  <h1>Selection</h1>
 
-router = KNORAU(task=&quot;classification&quot;, metric=&quot;accuracy&quot;, mode=&quot;max&quot;, k=20,
-                preset=&quot;custom&quot;, finder=&quot;annoy&quot;, n_trees=100)
-router.fit(X_val, y_val, val_preds)
-weights = router.predict(x)
-</code></pre>
-<hr />
-<h2 id="notes">Notes</h2>
-<p>Annoy has a known bug on Apple Silicon (M1/M2/M3) where the index silently returns
-only 1 neighbour regardless of <code>k</code>. deskit detects this at fit time and raises a
-<code>RuntimeError</code> with instructions to switch to <code>preset="fast"</code> or <code>preset="exact"</code> instead.</p>
-<p>Annoy does not have a built-in preset, and it is only available via <code>preset="custom"</code> with
-<code>finder="annoy"</code>.</p>
+<h2 id="algorithm-selection-guide">Algorithm Selection Guide</h2>
+<p>Selecting the best algorithm to use for your specific case can be difficult, which is why this
+guide was assembled based on theory and empirical data to help you decide which one to use.</p>
+<h2 id="regression">Regression</h2>
+<p>The entire DEWS family can be used for regression, as well as the LWSE family. KNORA algorithms can be used for 
+regression if the target value is classification-like, so it's usually contained within a certain range and it's discrete, 
+but it is not usually recommended.</p>
+<p>For general-purpose, plug-and-play regression tasks, use one of the following algorithms:
+- <a href="../algorithms/dewsi/">DEWS-I</a>: simple and consistent. Best on smooth and heterogeneous datasets and pools.
+- <a href="../algorithms/dewst/">DEWS-T</a>: it can get more performance than DEWS-I, but is less
+consistent. Tune the r2 threshold parameter to match DEWS-I more or less closely. Best on regions with directional structure,
+so a models performance linearly increases or decreases when approaching certain regions.
+- <a href="../algorithms/ola/">OLA</a>: it selects a single model, so it tends to perform worse than the other algorithms unless a single 
+model has very strong local dominance, but this means you only have to run one model's inference per test point, which can cut
+computation.</p>
+<p>If you want to get potentially better results and don't mind trying multiple algorithms, analyzing your dataset more in depth,
+and/or tuning hyperparameters, consider the following alongside the previous ones:
+- <a href="../algorithms/lwsei/">LWSE-I</a>: has the potential to improve performance drastically, but is less consistent than
+the previous ones. Best when a dataset has clear local structure and with larger values of k. It is more computationally
+expensive than the other algorithms
+- <a href="../algorithms/dewsiv/">DEWS-IV</a>: performs worse than the other algorithms in most cases, but can very rarely perform well
+in noisy datasets where consistency is important. <strong>Generally not recommended for use</strong></p>
+<h2 id="classification">Classification</h2>
+<p>Most regression algorithms can work for classification tasks, although many require you to pass confidence scores instead of
+raw predictions. On top of the algorithms mentioned in the regression section, KNORA variants are better for classification.</p>
+<p>For general-purpose, plug-and-play classification tasks, use one of the following algorithms:
+- <a href="../algorithms/dewst/">DEWS-T</a>: for classification, this algorithm is safe and more consistent than for regression, usually
+matching or beating DEWS-I. However, the threshold parameter should still be held high. Best on regions with directional structure,
+so a models performance linearly increases or decreases when approaching certain regions.
+- <a href="../algorithms/dewsi/">DEWS-I</a>: simple and consistent. Best on smooth and heterogeneous datasets and pools.
+- <a href="../algorithms/knoraiu/">KNORA-IU</a>: safe and consistent. Best when the dataset has class overlaps or imbalanced datasets.
+- <a href="../algorithms/ola/">OLA</a>: it selects a single model, so it tends to perform worse than the other algorithms unless a single 
+model has very strong local dominance, but this means you only have to run one model's inference per test point, which can cut
+computation.</p>
+<p>If you want to get potentially better results and don't mind trying multiple algorithms, analyzing your dataset more in depth,
+and/or tuning hyperparameters, consider the following alongside the previous ones:
+- <a href="../algorithms/lwsei/">LWSE-I</a>: has the potential to improve performance drastically, but is less consistent than
+the previous ones. Best when a dataset has clear local structure and with larger values of k. It is more computationally
+expensive than the other algorithms
+- <a href="../algorithms/dewsiv/">DEWS-IV</a>: performs worse than the other algorithms in most cases, but can very rarely perform well
+in noisy datasets where consistency is important. <strong>Generally not recommended for use</strong>
+- <a href="../algorithms/knorae/">KNORA-E</a>: similar situation to DEWS-IV but even more pronounced, its failures are more extreme and
+its successes are rarer, so it is generally not recommended to be considered, as it is a very aggressive algorithm. 
+However, it can rarely work when other algorithms struggle, especially when there are clear regional specialist. 
+<strong>Generally not recommended for use</strong></p>
+<h2 id="not-recommended-for-use">Not recommended for use</h2>
+<p>These algorithms are not recommended, mostly because there is a different algorithm that does the same thing but better.</p>
+<ul>
+<li><a href="../algorithms/knorau/">KNORA-U</a>: not a bad algorithm, simple and consistent, but KNORA-IU is better in basically every scenario</li>
+<li><a href="../algorithms/dewsu/">DEWS-U</a>: once again, simple and consistent, but DEWS-I is better in almost every case</li>
+<li><a href="../algorithms/lwseu/">LWSE-U</a>: basically a downgrade from LWSE-I, performs well in the same areas but always worse than LWSE-I</li>
+<li><a href="../algorithms/dewsv/">DEWS-V</a>: very weak and inconsistent, almost never performs well, and when it does, DEWS-IV is a better choice</li>
+</ul>
 
 
 
@@ -1176,10 +1103,10 @@ only 1 neighbour regardless of <code>k</code>. deskit detects this at fit time a
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
